@@ -11,58 +11,63 @@ import java.util.List;
 import java.util.ListIterator;
 
 import android.app.Activity;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 public class MainActivity extends Activity {
+
+	private List<ArrayList<String>> resultWords;
+	private ArrayList<ArrayList<Long>> resultDurations;
+	private List<String> lines;
+	private List<String> lineStartTime;
+	
+	private LyricTextView mLyricsTextView;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
-        LyricTextView tv = (LyricTextView) findViewById(R.id.my_text_view);
+        mLyricsTextView = (LyricTextView) findViewById(R.id.my_text_view);
         
+        initData();
+        int number = 11;
+//      Log.e("MainActivity", "Words" + resultWords.get(number).toString() + "\nDuration" + resultDurations.get(number).toString());
+      mLyricsTextView.setLineAndDuratios(lines.get(number), resultWords.get(number), resultDurations.get(number));
+	}
+	
+	private long getLineTime(ArrayList<Long> durations) {
+	    long result = 0;
+		for(long i : durations) {
+			result += i;
+		}
+		return result;
+	}
 
-        InputStream is;
+	/** 
+	* @Title: initData 
+	* @Description:取出歌词文件并装载到对应的集合内
+	* @param 
+	* @return void
+	* @throws 
+	*/
+	private void initData() {
+		//取出歌词文件
+        InputStream is = null;
         try {
 			is = getAssets().open("1.lyc");
-			
-			LyricsFileAnalyse lf = new LyricsFileAnalyse(is);
-			
-			List<ArrayList<String>>  t1 = lf.getResultWords();
-			List<String> text = lf.getLines();
-			tv.setText(text.get(12).toString()); 
-			tv.setDurations(lf.getResultDurations().get(12));
-			Log.e("MainActivity", "时间：" +lf.getResultDurations().get(22).toString() + "\n文字：" + text.get(22).toString());
-			new LyricAnimator().start(tv);
 		} catch (IOException e) {
-			e.printStackTrace();
+			e.printStackTrace();  
 		}
-        
-		
+        LyricsFileAnalyse lf = new LyricsFileAnalyse(is);
 
-        
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle action bar item clicks here. The action bar will
-		// automatically handle clicks on the Home/Up button, so long
-		// as you specify a parent activity in AndroidManifest.xml.
-		int id = item.getItemId();
-		if (id == R.id.action_settings) {
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
+        resultWords = lf.getResultWords();
+        resultDurations = lf.getResultDurations();
+        lines = lf.getLines();
+        lineStartTime = lf.getLineStartTime();
 	}
 }
