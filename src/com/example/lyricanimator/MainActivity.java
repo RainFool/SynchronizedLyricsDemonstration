@@ -1,22 +1,15 @@
 package com.example.lyricanimator;
 
-import java.io.BufferedInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 
 import android.app.Activity;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.TextView;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 
 public class MainActivity extends Activity {
 
@@ -26,6 +19,7 @@ public class MainActivity extends Activity {
 	private List<String> lineStartTime;
 	
 	private LyricTextView mLyricsTextView;
+	private Button mButtonPause;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -33,11 +27,20 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 		
         mLyricsTextView = (LyricTextView) findViewById(R.id.my_text_view);
+        mButtonPause = (Button) findViewById(R.id.button_pause);
+        mButtonPause.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				mLyricsTextView.pauseSwitch();
+			}
+		});
         
         initData();
-        int number = 11;
-//      Log.e("MainActivity", "Words" + resultWords.get(number).toString() + "\nDuration" + resultDurations.get(number).toString());
-      mLyricsTextView.setLineAndDuratios(lines.get(number), resultWords.get(number), resultDurations.get(number));
+        int number = 15;
+//        Log.e("MainActivity", "Words" + resultWords.get(number).toString() + "\nDuration" + resultDurations.get(number).toString());
+        mLyricsTextView.setLineAndDurations(lines.get(number), resultWords.get(number), resultDurations.get(number));
+        
 	}
 	
 	private long getLineTime(ArrayList<Long> durations) {

@@ -16,30 +16,42 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.widget.TextView;
 
+/** 
+* @ClassName: LyricTextView 
+* @Description: KTV歌词播放效果
+* @author TianYu 田雨
+* @date 2015年9月2日 下午12:07:45 
+*  本类接收两个集合作为参数，使用setLineAndDurations方法设置数据
+*  播放过程中可以使用pauseSwitch进行暂停和播放的切换
+*/
 public class LyricTextView extends TextView {
 
 	private static final String TAG = "MyTextView";
 
-	BitmapShader mBitmapShader;
+	private BitmapShader mBitmapShader;
 
 	// @Fields maskWidth :指定略过的阴影
-	float maskWidth;
+	private float maskWidth;
 
 	// 资源文件
-	Drawable shadow;
+	private Drawable shadow;
 
 	// 歌词正文
-	String line;
+	private String line;
 	// 歌词正文集合
-	ArrayList<String> words;
+	private ArrayList<String> words;
 
 	// 歌词中每个字的持续时间
-	ArrayList<Long> durations;
+	private ArrayList<Long> durations;
 	
 	//每个字每毫秒前进多少像素
-	ArrayList<Float> speed = new ArrayList<>();
+	private ArrayList<Float> speed = new ArrayList<>();
 
-	Thread maskThread;
+	//控制歌词遮挡动态显示的线程
+	private Thread maskThread;
+	
+	//暂停tag,true为暂停，false为继续
+	private boolean pauseTag;
 
 	private Handler handler = new Handler() {
 		public void handleMessage(android.os.Message msg) {
@@ -65,28 +77,40 @@ public class LyricTextView extends TextView {
 	}
 
 	private void init() {
-		shadow = getResources().getDrawable(R.drawable.shadow);
+		shadow = getResources().getDrawable(R.drawable.music_shadow);
+		createShader(1);
 	}
 
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 		String text = this.getText().toString();
+		float width = getPaint().measureText(text) + getPaddingLeft() + getPaddingRight();
+		
+		if(width > this.getWidth()) {
+			setMeasuredDimension((int) width, getMeasuredHeight() );
+			this.setWidth((int) width);
+		}
+		Log.e(TAG, "measureWidth:"+width+"textView width:"+this.getWidth()+"|textview height:" + this.getHeight()); 
 	}
 
 	@Override
 	protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
 		super.onLayout(changed, left, top, right, bottom);
+//		this.setX(0);
+		Log.e(TAG, "textView:"+ this.getX()); 
 	}
 
 	@Override
 	protected void onDraw(Canvas canvas) {
+		super.onDraw(canvas);
+		
+		
 
 		// Log.e(TAG, "MaskWidth:"+ maskWidth);
 		Matrix shaderMatrix = new Matrix();
 		shaderMatrix.setTranslate(0, shadow.getIntrinsicHeight());
 		mBitmapShader.setLocalMatrix(shaderMatrix);
-		super.onDraw(canvas);
 	}
 
 	public float getMaskWidth() {
@@ -95,13 +119,18 @@ public class LyricTextView extends TextView {
 
 	public void setMaskWidth(float maskWidth) {
 		this.maskWidth = maskWidth;
-		createShader((int) maskWidth);
-		invalidate();
+		if(maskWidth < this.getWidth()) {
+			
+			createShader((int) maskWidth);
+			invalidate();
+		}else {
+			createShader(this.getWidth());
+			scrollTo((int) (maskWidth - this.getWidth()), 0);
+			invalidate(); 
+		}
+		
 	}
 
-	public void setMaskPercent(float percent) {
-		// this.maskWidth =
-	}
 
 	public void setLine(String line) {
 		this.line = line;
@@ -110,8 +139,25 @@ public class LyricTextView extends TextView {
 	public void setDurations(ArrayList<Long> durations) {
 		this.durations = durations;
 	}
+	
+	public void pauseSwitch() {
+		if(pauseTag) {
+			pauseTag = false;
+		}else {
+			pauseTag = true;
+		}
+	}
 
-	public void setLineAndDuratios(String line, ArrayList<String> words,ArrayList<Long> durations) {
+	/** 
+	* @Title: setLineAndDuratios 
+	* @Description: 设置这个空间的基本数据
+	* @param @param line 歌词
+	* @param @param words 歌词的集合,对应durations中的每个时间
+	* @param @param durations 歌词中每个字的时间，对应words中的每个字符串
+	* @return void
+	* @throws InterruptedException
+	*/
+	public void setLineAndDurations(String line, ArrayList<String> words,ArrayList<Long> durations) {
 		this.line = line;
 		this.durations = durations;
 		this.words = words;
@@ -131,7 +177,7 @@ public class LyricTextView extends TextView {
 		}
 
 		this.setText(line);
-		measureWord();
+		measureWords();
 		initMaskThread();
 		if (maskThread != null) {
 			maskThread.start();
@@ -144,14 +190,20 @@ public class LyricTextView extends TextView {
 			float t = 0;
 			@Override
 			public void run() {
-				Log.e(TAG, "speed:" + speed);
 				try {
 					//处理每个词
 					for (int i = 0; !isInterrupted() && i < words.size(); i++) {
 						//每个词中根据算好的速度每10毫秒刷新
 						for (int j = 0; j < durations.get(i)/10; j++) {
-							t += speed.get(i) * 10;
-							Log.e(TAG, "t:" + t);
+							//当前暂停
+							if(pauseTag) {
+								j--;
+							}
+							//当前处于播放状态
+							else {
+								
+								t += speed.get(i) * 10;
+							}
 							Thread.sleep(10);
 							Message msg = new Message();
 							msg.what = 0;
@@ -171,7 +223,7 @@ public class LyricTextView extends TextView {
 
 	private void createShader(int width) {
 
-		Bitmap bitmap = Bitmap.createBitmap(1280, shadow.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+		Bitmap bitmap = Bitmap.createBitmap(1920, shadow.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
 		Canvas canvas = new Canvas(bitmap);
 		canvas.drawColor(getCurrentTextColor());
 		shadow.setBounds(0, 0, width, 100);
@@ -182,19 +234,12 @@ public class LyricTextView extends TextView {
 
 	}
 	
-	private void measureWord() {
+	private void measureWords() {
 		for (int i = 0; i < words.size(); i++) {
 			float pix = getPaint().measureText(words.get(i));
 			speed.add(pix / durations.get(i));
 		}
 	}
-	class LyricAsyncTask extends AsyncTask<ArrayList<Float>, Float, Void> {
+	
 
-		@Override
-		protected Void doInBackground(ArrayList<Float>... params) {
-			
-			return null;
-		}
-		
-	}
 }
