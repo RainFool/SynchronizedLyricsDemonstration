@@ -1,4 +1,4 @@
-package com.example.lyricanimator;
+ï»¿package com.example.synchronizedlyricsdemonstration;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
@@ -12,39 +12,48 @@ import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
+import android.util.Log;
+
 /** 
 * @ClassName: LyricsFileAnalyse 
-* @Description: ½«¸è´ÊÎÄ¼ş×ª»»ÎªÒ»¸ö´æ´¢¸è´ÊµÄ¼¯ºÏ£¬ºÍÒ»¸ö´æ´¢¶ÔÓ¦¸è´ÊÖĞÃ¿¸ö×Ö³ÖĞøÊ±¼äµÄ¼¯ºÏ
-* @author TianYu ÌïÓê
-* @date 2015Äê8ÔÂ31ÈÕ ÏÂÎç6:08:47 
-*  ÔÚ¹¹Ôì·½·¨ÖĞ´«ÈëFileÀà£¬È»ºóµ÷ÓÃÁ½¸ögetResult...·½·¨¼´¿É
+* @Description: å°†æ­Œè¯æ–‡ä»¶è½¬æ¢ä¸ºä¸€ä¸ªå­˜å‚¨æ­Œè¯çš„é›†åˆï¼Œå’Œä¸€ä¸ªå­˜å‚¨å¯¹åº”æ­Œè¯ä¸­æ¯ä¸ªå­—æŒç»­æ—¶é—´çš„é›†åˆ
+* @author TianYu ç”°é›¨
+* @date 2015å¹´8æœˆ31æ—¥ ä¸‹åˆ6:08:47 
+*  åœ¨æ„é€ æ–¹æ³•ä¸­ä¼ å…¥Fileç±»ï¼Œç„¶åè°ƒç”¨ä¸¤ä¸ªgetResult...æ–¹æ³•å³å¯
 */
 public class LyricsFileAnalyse {
+	
+	private static final String TAG = "LyricsFileAnalyse";
 
 	/**
-	 * @Fields lyricFile : µ÷ÓÃ·½·¨Ê±´«ÈëµÄÎÄ¼ş
+	 * @Fields lyricFile : è°ƒç”¨æ–¹æ³•æ—¶ä¼ å…¥çš„æ–‡ä»¶
 	 */
 	File lyricFile;
 
 	/**
-	 * @Fields resultDurations :±£´æËùÓĞµÄĞĞµÄÊ±¼äĞÅÏ¢,Ç¶Ì×µÄ¼¯ºÏ´æ·ÅÁË¶ÔÓ¦¸è´ÊÕıÎÄÃ¿¸ö×ÖµÄ³ÖĞøÊ±¼ä
+	 * @Fields resultDurations :ä¿å­˜æ‰€æœ‰çš„è¡Œçš„æ—¶é—´ä¿¡æ¯,åµŒå¥—çš„é›†åˆå­˜æ”¾äº†å¯¹åº”æ­Œè¯æ­£æ–‡æ¯ä¸ªå­—çš„æŒç»­æ—¶é—´
 	 */
 	ArrayList<ArrayList<Long>> resultDurations;
 
 	/**
-	 * @Fields resultWords :±£´æËùÓĞµÄ¸è´ÊÕıÎÄĞÅÏ¢£¬¼´ÓÃ»§¿´¼ûµÄÎÄ×Ö
+	 * @Fields resultWords :ä¿å­˜æ‰€æœ‰çš„æ­Œè¯æ­£æ–‡ä¿¡æ¯ï¼Œå³ç”¨æˆ·çœ‹è§çš„æ–‡å­—
 	 */
 	ArrayList<ArrayList<String>> resultWords;
 	
 	/** 
-	* @Fields lines :±£´æËùÓĞ¸è´ÊÕıÎÄĞÅÏ¢£¬ÓëresultWords²»Í¬µÄÊÇ£¬Õâ¸ö±äÁ¿´æ´¢ÁËÃ¿Ò»ĞĞ¸è´Ê×÷ÎªÒ»¸öString
+	* @Fields lines :ä¿å­˜æ‰€æœ‰æ­Œè¯æ­£æ–‡ä¿¡æ¯ï¼Œä¸resultWordsä¸åŒçš„æ˜¯ï¼Œè¿™ä¸ªå˜é‡å­˜å‚¨äº†æ¯ä¸€è¡Œæ­Œè¯ä½œä¸ºä¸€ä¸ªString
 	*/ 
 	ArrayList<String> lines;
 
 	/**
-	 * @Fields lineStartTime :Ã¿Ò»ĞĞµÄ¿ªÊ¼Ê±¼ä£¬¼´Ã¿Ò»ĞĞ³öÏÖµÄµÚÒ»¸öÊ±¼ä
+	 * @Fields lineStart:æ¯ä¸€è¡Œçš„å¼€å§‹æ—¶é—´ï¼Œå³æ¯ä¸€è¡Œå‡ºç°çš„ç¬¬ä¸€ä¸ªæ—¶é—´çš„å­—ç¬¦ä¸²è¡¨è¾¾å½¢å¼
 	 */
-	ArrayList<String> lineStartTime = new ArrayList<>();
+	ArrayList<String> lineStart = new ArrayList<>();
+	
+	/** 
+	* @Fields lineStartTime :æ¯ä¸€è¡Œæ­Œè¯å¼€å§‹æ—¶é—´
+	*/ 
+	ArrayList<Long> lineStartTime;
 
 	public LyricsFileAnalyse(File lyricFile) {
 		this.lyricFile = lyricFile;
@@ -78,19 +87,27 @@ public class LyricsFileAnalyse {
 		return resultWords;
 	}
 
-	public ArrayList<String> getLineStartTime() {
-		return lineStartTime;
+	public ArrayList<String> getLineStart() {
+		return lineStart;
 	}
 
 	public ArrayList<String> getLines() {
 		return lines;
 	}
 
+	public ArrayList<Long> getLineStartTime() {
+		ArrayList<String> start = getLineStart();
+		lineStartTime = new ArrayList<>();
+		for(String i : start) {
+			lineStartTime.add(timeParse(i));
+		}
+		return lineStartTime;
+	}
 
 
 	/** 
 	* @Title: lyricFileAnalyse 
-	* @Description: ½«ÎÄ¼şÖĞµÄ¸è´ÊºÍÊ±¼äÌáÈ¡µ½Á½¸ö¼¯ºÏÖĞ£¬Í¬Ê±½«Ã¿Ò»ĞĞµÄ¿ªÊ¼Ê±¼äÒ²ÌáÈ¡³ö
+	* @Description: å°†æ–‡ä»¶ä¸­çš„æ­Œè¯å’Œæ—¶é—´æå–åˆ°ä¸¤ä¸ªé›†åˆä¸­ï¼ŒåŒæ—¶å°†æ¯ä¸€è¡Œçš„å¼€å§‹æ—¶é—´ä¹Ÿæå–å‡º
 	* @param @param lyricFile
 	* @return void
 	* @throws 
@@ -100,14 +117,14 @@ public class LyricsFileAnalyse {
 			resultDurations = new ArrayList<>();
 			resultWords = new ArrayList<>();
 			
-			// ´ÓÎÄ¼şÖĞÈ¡³öµÄÔ­Ê¼µÄÒ»ĞĞÊı¾İ
+			// ä»æ–‡ä»¶ä¸­å–å‡ºçš„åŸå§‹çš„ä¸€è¡Œæ•°æ®
 			String rawLine = null;
 
 			while ((rawLine = br.readLine()) != null) {
 
-				// Ã¿Ò»ĞĞ´¦Àíºó´æ·ÅÊ±¼äµÄ¼¯ºÏ
+				// æ¯ä¸€è¡Œå¤„ç†åå­˜æ”¾æ—¶é—´çš„é›†åˆ
 				ArrayList<Long> lineDurations = new ArrayList<>();
-				// Ã¿Ò»ĞĞ´¦Àíºó´æ·ÅÕıÎÄµÄ¼¯ºÏ
+				// æ¯ä¸€è¡Œå¤„ç†åå­˜æ”¾æ­£æ–‡çš„é›†åˆ
 				ArrayList<String> lineWords = new ArrayList<>();
 				lineHandle(rawLine, lineDurations, lineWords);
 				
@@ -125,17 +142,17 @@ public class LyricsFileAnalyse {
 
 		String[] data = rawLine.split("\\|");
 
-		// Èç¹ûÃ»ÓĞ¡°|¡±·ûºÅ,ÇÒÓĞÊı¾İ£¬¾Í½«Ê±¼äÉèÎªÆğÊ¼Ê±¼ä£¬²¢½«×Ö·û´®ÄÚµÄ"["È¥µô·µ»Ø
+		// å¦‚æœæ²¡æœ‰â€œ|â€ç¬¦å·,ä¸”æœ‰æ•°æ®ï¼Œå°±å°†æ—¶é—´è®¾ä¸ºèµ·å§‹æ—¶é—´ï¼Œå¹¶å°†å­—ç¬¦ä¸²å†…çš„"["å»æ‰è¿”å›
 		if (data.length == 1) {
-			lineStartTime.add("[00:00:00]");
+			lineStart.add("[00:00:00]");
 			lineWords.add(rawLine.replace("[", "").replace("]", ""));
 			return;
 		}
 
-		// ÒÔÏÂÊÇÕı³£ĞĞµÄ´¦Àí£¬ÏÈ¼ÓÈëÃ¿Ò»ĞĞµÄÆğÊ¼Ê±¼ä,²¢½«Ê±¼äµÄ¡°[¡±ºÍ¡°]¡±È¥µô
-		lineStartTime.add(data[0].replace("[", "").replace("]", ""));
+		// ä»¥ä¸‹æ˜¯æ­£å¸¸è¡Œçš„å¤„ç†ï¼Œå…ˆåŠ å…¥æ¯ä¸€è¡Œçš„èµ·å§‹æ—¶é—´,å¹¶å°†æ—¶é—´çš„â€œ[â€å’Œâ€œ]â€å»æ‰
+		lineStart.add(data[0].replace("[", "").replace("]", ""));
 
-		// Ñ­»·´¦ÀíÕı³£Êı¾İ£¬Ò»ĞĞ±»·Ö¸îºó£¬Êı×éÖĞÅ¼ÊıÎªÊ±¼ä£¬ÏÈ´æ·Åµ½ÁÙÊ±¼¯ºÏÀï,ÆæÊıÎªÕıÎÄ´æ·ÅÔÚlineWordsÖĞ
+		// å¾ªç¯å¤„ç†æ­£å¸¸æ•°æ®ï¼Œä¸€è¡Œè¢«åˆ†å‰²åï¼Œæ•°ç»„ä¸­å¶æ•°ä¸ºæ—¶é—´ï¼Œå…ˆå­˜æ”¾åˆ°ä¸´æ—¶é›†åˆé‡Œ,å¥‡æ•°ä¸ºæ­£æ–‡å­˜æ”¾åœ¨lineWordsä¸­
 		ArrayList<String> times = new ArrayList<>();
 		for (int i = 0; i < data.length; i++) {
 
@@ -146,7 +163,7 @@ public class LyricsFileAnalyse {
 			}
 		}
 
-		// ÕıÎÄ´¦ÀíÍê±Ï£¬ÏÖÔÚ½«ÁÙÊ±¼¯ºÏÖĞµÄÊı¾İ×ª»»ÎªÃ¿¸ö×ÖµÄ³ÖĞøÊ±¼ä
+		// æ­£æ–‡å¤„ç†å®Œæ¯•ï¼Œç°åœ¨å°†ä¸´æ—¶é›†åˆä¸­çš„æ•°æ®è½¬æ¢ä¸ºæ¯ä¸ªå­—çš„æŒç»­æ—¶é—´
 		long[] nums = new long[times.size()];
 		for (int i = 0; i < times.size(); i++) {
 			nums[i] = timeParse(times.get(i));
@@ -156,19 +173,20 @@ public class LyricsFileAnalyse {
 		}
 	}
 
-	// ½«Ê±¼ä×Ö·û´®×ª»»ÎªlongĞÍÊıÖµ
+	// å°†æ—¶é—´å­—ç¬¦ä¸²è½¬æ¢ä¸ºlongå‹æ•°å€¼
 	private long timeParse(String time) {
 
 		time = time.replace("[", "").replace("]", "");
 		String[] ss = time.split(":");
 		if (ss.length != 3) {
-			// TODO
+			Log.e(TAG, "è§£ææ–‡ä»¶æ—¶å‘ç°æ—¶é—´æ ¼å¼ä¸å¯¹ï¼");
+			return -1;
 		}
 		long result = Long.parseLong(ss[0]) * 60 * 1000 + Long.parseLong(ss[1]) * 1000 + Long.parseLong(ss[2]);
 		return result;
 	}
 	
-	//³õÊ¼»¯lines
+	//åˆå§‹åŒ–lines
 	private void setLines() {
 		lines = new ArrayList<>();
 		for(int i = 0;i < resultWords.size();i ++) {

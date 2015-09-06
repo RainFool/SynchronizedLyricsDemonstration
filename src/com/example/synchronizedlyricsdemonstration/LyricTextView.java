@@ -1,4 +1,4 @@
-package com.example.lyricanimator;
+ï»¿package com.example.synchronizedlyricsdemonstration;
 
 import java.util.ArrayList;
 
@@ -9,7 +9,6 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Shader;
 import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
@@ -18,40 +17,45 @@ import android.widget.TextView;
 
 /** 
 * @ClassName: LyricTextView 
-* @Description: KTV¸è´Ê²¥·ÅĞ§¹û
-* @author TianYu ÌïÓê
-* @date 2015Äê9ÔÂ2ÈÕ ÏÂÎç12:07:45 
-*  ±¾Àà½ÓÊÕÁ½¸ö¼¯ºÏ×÷Îª²ÎÊı£¬Ê¹ÓÃsetLineAndDurations·½·¨ÉèÖÃÊı¾İ
-*  ²¥·Å¹ı³ÌÖĞ¿ÉÒÔÊ¹ÓÃpauseSwitch½øĞĞÔİÍ£ºÍ²¥·ÅµÄÇĞ»»
+* @Description: KTVæ­Œè¯æ’­æ”¾æ•ˆæœ
+* @author TianYu ç”°é›¨
+* @date 2015å¹´9æœˆ2æ—¥ ä¸‹åˆ12:07:45 
+*  æœ¬ç±»æ¥æ”¶ä¸¤ä¸ªé›†åˆä½œä¸ºå‚æ•°ï¼Œä½¿ç”¨setLineAndDurationsæ–¹æ³•è®¾ç½®æ•°æ®
+*  æ’­æ”¾è¿‡ç¨‹ä¸­å¯ä»¥ä½¿ç”¨pauseSwitchè¿›è¡Œæš‚åœå’Œæ’­æ”¾çš„åˆ‡æ¢
 */
 public class LyricTextView extends TextView {
 
-	private static final String TAG = "MyTextView";
+	private static final String TAG = "LyricTextView";
 
 	private BitmapShader mBitmapShader;
 
-	// @Fields maskWidth :Ö¸¶¨ÂÔ¹ıµÄÒõÓ°
+	// @Fields maskWidth :æŒ‡å®šç•¥è¿‡çš„é˜´å½±
 	private float maskWidth;
 
-	// ×ÊÔ´ÎÄ¼ş
+	// èµ„æºæ–‡ä»¶
 	private Drawable shadow;
+	Bitmap bitmap;
+	Canvas canvas;
 
-	// ¸è´ÊÕıÎÄ
+	// æ­Œè¯æ­£æ–‡
 	private String line;
-	// ¸è´ÊÕıÎÄ¼¯ºÏ
+	// æ­Œè¯æ­£æ–‡é›†åˆ
 	private ArrayList<String> words;
 
-	// ¸è´ÊÖĞÃ¿¸ö×ÖµÄ³ÖĞøÊ±¼ä
+	// æ­Œè¯ä¸­æ¯ä¸ªå­—çš„æŒç»­æ—¶é—´
 	private ArrayList<Long> durations;
 	
-	//Ã¿¸ö×ÖÃ¿ºÁÃëÇ°½ø¶àÉÙÏñËØ
+	//æ¯ä¸ªå­—æ¯æ¯«ç§’å‰è¿›å¤šå°‘åƒç´ 
 	private ArrayList<Float> speed = new ArrayList<>();
 
-	//¿ØÖÆ¸è´ÊÕÚµ²¶¯Ì¬ÏÔÊ¾µÄÏß³Ì
+	//æ§åˆ¶æ­Œè¯é®æŒ¡åŠ¨æ€æ˜¾ç¤ºçš„çº¿ç¨‹
 	private Thread maskThread;
 	
-	//ÔİÍ£tag,trueÎªÔİÍ££¬falseÎª¼ÌĞø
+	//æš‚åœtag,trueä¸ºæš‚åœï¼Œfalseä¸ºç»§ç»­
 	private boolean pauseTag;
+	
+	//æ¯ä¸€è¡Œçš„å¼€å§‹æ—¶é—´
+	private ArrayList<Long> lineStartTime;
 
 	private Handler handler = new Handler() {
 		public void handleMessage(android.os.Message msg) {
@@ -78,6 +82,9 @@ public class LyricTextView extends TextView {
 
 	private void init() {
 		shadow = getResources().getDrawable(R.drawable.music_shadow);
+		bitmap = Bitmap.createBitmap(1920, shadow.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+		canvas = new Canvas(bitmap);
+		mBitmapShader = new BitmapShader(bitmap, Shader.TileMode.REPEAT, Shader.TileMode.CLAMP);
 		createShader(1);
 	}
 
@@ -87,45 +94,40 @@ public class LyricTextView extends TextView {
 		String text = this.getText().toString();
 		float width = getPaint().measureText(text) + getPaddingLeft() + getPaddingRight();
 		
-		if(width > this.getWidth()) {
 			setMeasuredDimension((int) width, getMeasuredHeight() );
 			this.setWidth((int) width);
-		}
-		Log.e(TAG, "measureWidth:"+width+"textView width:"+this.getWidth()+"|textview height:" + this.getHeight()); 
-	}
-
-	@Override
-	protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-		super.onLayout(changed, left, top, right, bottom);
-//		this.setX(0);
-		Log.e(TAG, "textView:"+ this.getX()); 
 	}
 
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
-		
-		
-
-		// Log.e(TAG, "MaskWidth:"+ maskWidth);
+//		 Log.e(TAG, "MaskWidth:"+ maskWidth + "|this.getWidth:" + this.getWidth());
 		Matrix shaderMatrix = new Matrix();
 		shaderMatrix.setTranslate(0, shadow.getIntrinsicHeight());
-		mBitmapShader.setLocalMatrix(shaderMatrix);
+		mBitmapShader.setLocalMatrix(shaderMatrix); 
 	}
-
+ 
 	public float getMaskWidth() {
 		return maskWidth;
 	}
-
+	
+	/** 
+	* @Title: setMaskWidth 
+	* @Description: TODOæ ¹æ®å®½åº¦ç»˜åˆ¶é®æŒ¡æ•ˆæœ
+	* @param @param maskWidth
+	* @return void
+	* @throws 
+	*/
 	public void setMaskWidth(float maskWidth) {
 		this.maskWidth = maskWidth;
+//		Log.e(TAG, "this width:"+ this.getWidth());
 		if(maskWidth < this.getWidth()) {
-			
 			createShader((int) maskWidth);
-			invalidate();
+			invalidate(); 
+			Log.e(TAG, "maskWidth:" + maskWidth + "|this.width:" + this.getWidth());
 		}else {
 			createShader(this.getWidth());
-			scrollTo((int) (maskWidth - this.getWidth()), 0);
+			scrollTo((int) (maskWidth - this.getWidth()), 0); 
 			invalidate(); 
 		}
 		
@@ -134,6 +136,11 @@ public class LyricTextView extends TextView {
 
 	public void setLine(String line) {
 		this.line = line;
+		this.setText(line);
+	}
+	
+	public void setLineStartTime(ArrayList<Long> lineStartTime) {
+		this.lineStartTime = lineStartTime;
 	}
 
 	public void setDurations(ArrayList<Long> durations) {
@@ -150,10 +157,10 @@ public class LyricTextView extends TextView {
 
 	/** 
 	* @Title: setLineAndDuratios 
-	* @Description: ÉèÖÃÕâ¸ö¿Õ¼äµÄ»ù±¾Êı¾İ
-	* @param @param line ¸è´Ê
-	* @param @param words ¸è´ÊµÄ¼¯ºÏ,¶ÔÓ¦durationsÖĞµÄÃ¿¸öÊ±¼ä
-	* @param @param durations ¸è´ÊÖĞÃ¿¸ö×ÖµÄÊ±¼ä£¬¶ÔÓ¦wordsÖĞµÄÃ¿¸ö×Ö·û´®
+	* @Description: è®¾ç½®è¿™ä¸ªç©ºé—´çš„åŸºæœ¬æ•°æ®
+	* @param @param line æ­Œè¯
+	* @param @param words æ­Œè¯çš„é›†åˆ,å¯¹åº”durationsä¸­çš„æ¯ä¸ªæ—¶é—´
+	* @param @param durations æ­Œè¯ä¸­æ¯ä¸ªå­—çš„æ—¶é—´ï¼Œå¯¹åº”wordsä¸­çš„æ¯ä¸ªå­—ç¬¦ä¸²
 	* @return void
 	* @throws InterruptedException
 	*/
@@ -163,73 +170,72 @@ public class LyricTextView extends TextView {
 		this.words = words;
 
 		if (words.size() != durations.size()) {
-			Log.e(TAG, "¸è´Ê¼¯ºÏÓëÊ±¼ä¼¯ºÏ²»·û£º" + "\n¸è´Ê¼¯ºÏ£º" + words.toString() + "\nÊ±¼ä¼¯ºÏ£º" + durations.toString());
+//			Log.e(TAG, "æ­Œè¯é›†åˆä¸æ—¶é—´é›†åˆä¸ç¬¦ï¼š" + "\næ­Œè¯é›†åˆï¼š" + words.toString() + "\næ—¶é—´é›†åˆï¼š" + durations.toString());
 			return;
 		}else {
 			
 		}
 
-		// Í¬Ê±ÉèÖÃÕâÁ½¸öÒâÎ¶×ÅĞèÒª½áÊøµ±Ç°Ïß³Ì
+		// åŒæ—¶è®¾ç½®è¿™ä¸¤ä¸ªæ„å‘³ç€éœ€è¦ç»“æŸå½“å‰çº¿ç¨‹
 		if (maskThread != null) {
 			maskThread.interrupt();
 			maskThread = null;
-			Log.e(TAG, "Thread £ºÉÏÒ»¸öÏß³ÌÒÑ¾­ÖĞ¶Ï");
+			Log.e(TAG, "Thread ï¼šä¸Šä¸€ä¸ªçº¿ç¨‹å·²ç»ä¸­æ–­");
 		}
 
 		this.setText(line);
 		measureWords();
-		initMaskThread();
+//		initMaskThread();
 		if (maskThread != null) {
 			maskThread.start();
 		}
 
 	}
+	
 
-	private void initMaskThread() {
-		maskThread = new Thread() {
-			float t = 0;
-			@Override
-			public void run() {
-				try {
-					//´¦ÀíÃ¿¸ö´Ê
-					for (int i = 0; !isInterrupted() && i < words.size(); i++) {
-						//Ã¿¸ö´ÊÖĞ¸ù¾İËãºÃµÄËÙ¶ÈÃ¿10ºÁÃëË¢ĞÂ
-						for (int j = 0; j < durations.get(i)/10; j++) {
-							//µ±Ç°ÔİÍ£
-							if(pauseTag) {
-								j--;
-							}
-							//µ±Ç°´¦ÓÚ²¥·Å×´Ì¬
-							else {
-								
-								t += speed.get(i) * 10;
-							}
-							Thread.sleep(10);
-							Message msg = new Message();
-							msg.what = 0;
-							msg.obj = t;
-							handler.sendMessage(msg);
-						}
+//	private void initMaskThread() {
+//		maskThread = new Thread() {
+//			float t = 0;
+//			@Override
+//			public void run() {
+//				try {
+//					//å¤„ç†æ¯ä¸ªè¯
+//					for (int i = 0; !isInterrupted() && i < words.size(); i++) {
+//						//æ¯ä¸ªè¯ä¸­æ ¹æ®ç®—å¥½çš„é€Ÿåº¦æ¯10æ¯«ç§’åˆ·æ–°
+//						for (int j = 0; j < durations.get(i)/10; j++) {
+//							//å½“å‰æš‚åœ
+//							if(pauseTag) {
+//								j--;
+//							}
+//							//å½“å‰å¤„äºæ’­æ”¾çŠ¶æ€
+//							else {
+//								
+//								t += speed.get(i) * 10;
+//							}
+//							Thread.sleep(10);
+//							Message msg = new Message();
+//							msg.what = 0;
+//							msg.obj = t;
+//							handler.sendMessage(msg);
+//						}
+//
+//					}
+//					// å¾ªç¯ç»“æŸä¸­æ–­çº¿ç¨‹
+//					join();
+//				} catch (InterruptedException e) {
+//					e.printStackTrace();
+//				}
+//			};
+//		};
+//	}
 
-					}
-					// Ñ­»·½áÊøÖĞ¶ÏÏß³Ì
-					interrupt();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			};
-		};
-	}
+
 
 	private void createShader(int width) {
-
-		Bitmap bitmap = Bitmap.createBitmap(1920, shadow.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-		Canvas canvas = new Canvas(bitmap);
 		canvas.drawColor(getCurrentTextColor());
 		shadow.setBounds(0, 0, width, 100);
 		shadow.draw(canvas);
-
-		mBitmapShader = new BitmapShader(bitmap, Shader.TileMode.REPEAT, Shader.TileMode.CLAMP);
+		
 		getPaint().setShader(mBitmapShader);
 
 	}
