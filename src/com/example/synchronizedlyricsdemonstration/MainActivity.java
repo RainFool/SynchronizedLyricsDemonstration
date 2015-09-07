@@ -30,7 +30,7 @@ public class MainActivity extends Activity {
 	public TextView mTextView1, mTextView2, mTextView3, mTextView4, mTextView5, mTextView6, mTextView7,
 			mTextViewNextLine;
 	
-	long timestamp = 30000;
+	long timestamp = 0; 
 
 	Handler handler = new Handler() {
 		public void handleMessage(Message msg) {
