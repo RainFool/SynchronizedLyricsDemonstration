@@ -41,7 +41,7 @@ public class LyricTextViewWapper {
 			List<ArrayList<Long>> resultDurations, List<ArrayList<String>> resultWords) {
 		super();
 		this.context = context;
-		this.lineStartTime = lineStartTime;
+		this.lineStartTime = lineStartTime; 
 		this.lines = lines;
 		this.resultDurations = resultDurations;
 		this.resultWords = resultWords;
@@ -64,6 +64,10 @@ public class LyricTextViewWapper {
 
 		//处理当前行，并设置mask宽度
 		handleLine(lineTimestemp);
+	}
+
+	public int getLineNumber() {
+		return mLineNumber;
 	}
 
 	private void handleLine(long lineTimestemp) {
