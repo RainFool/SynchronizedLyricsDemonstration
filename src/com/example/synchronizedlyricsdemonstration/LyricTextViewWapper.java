@@ -66,38 +66,32 @@ public class LyricTextViewWapper {
 		handleLine(lineTimestemp);
 	}
 
-	private void handleLine(long lineTimestemp) {
-		// 设置没有时间的特殊行
-		if (durations.isEmpty()) {
-			Log.e(TAG, "这是一个特殊行" + "\nwords:" + words.toString() + "\nDurations:" + durations.toString());
+	// 让时间戳跟每一行的起始时间去比较，如果在这个区间，当前的歌词进行到哪一行也随之确定
+	private long checkToWhichLine(long timestamp) {
+		// 当前行时间进行到何时
+		long lineTimestemp = 0;
+		if (lineStartTime.size() != lines.size()) {
+			return -1;
 		}
-		// 设置完行，现在设置指定行中的已经经过了几个字
-		else if (words.size() != durations.size()) {
-			Log.e(TAG, "歌词与时间不对应:" + "\nwords:" + words.toString() + "\nDurations:" + durations.toString());
-		} else {
-			// Log.e(TAG, "处理正常行");
-			long tempLong = 0;
-			for (int i = 0; i < words.size(); i++) {
 
-				if (lineTimestemp - tempLong >= durations.get(i)) {
-					tempLong += durations.get(i);
-				} else {
-					// 已经经过了第i-1个字的宽度
-					float passedWidth = passedWidths.get(i);
-					// 第i个字的速度
-					float speed = speeds.get(i);
-					// Log.e(TAG, "speed:" + speed);
-					// 目前在第i个字上的宽度
-					float currentWidth = speed * (lineTimestemp - tempLong);
-					// 设定实际宽度
-					// Log.e(TAG, "实际宽度："+ passedWidth + currentWidth);
-					mLyricTextView.setMaskWidth(passedWidth + currentWidth);
-					break;
-				}
-
+		for (int i = 0; i < lineStartTime.size(); i++) {
+			if (i == lineStartTime.size() - 1 && timestamp >= lineStartTime.get(i)) {
+				lineTimestemp = timestamp - lineStartTime.get(i);
+				mLineNumber = i;
+				break;
+			} else if (timestamp >= lineStartTime.get(i) && timestamp <= lineStartTime.get(i + 1)) {
+				lineTimestemp = timestamp - lineStartTime.get(i);
+				mLineNumber = i;
+				break;
+			} else {
+			}
+			if (i == lineStartTime.size() - 1) {
+				Log.e(TAG, "未找到指定行.");
 			}
 		}
+		return lineTimestemp;
 	}
+
 
 	//如果行号变化了，执行以下操作
 	private void changeLine() {
@@ -131,29 +125,38 @@ public class LyricTextViewWapper {
 		// passedWidths.toString() + "\nspeed:\n" + speeds.toString());
 	}
 
-	// 让时间戳跟每一行的起始时间去比较，如果在这个区间，当前的歌词进行到哪一行也随之确定
-	private long checkToWhichLine(long timestamp) {
-		// 当前行时间进行到何时
-		long lineTimestemp = 0;
-		if (lineStartTime.size() != lines.size()) {
-			return -1;
+	//处理当前行
+	private void handleLine(long lineTimestemp) {
+		// 设置没有时间的特殊行
+		if (durations.isEmpty()) {
+			Log.e(TAG, "这是一个特殊行" + "\nwords:" + words.toString() + "\nDurations:" + durations.toString());
 		}
+		// 设置完行，现在设置指定行中的已经经过了几个字
+		else if (words.size() != durations.size()) {
+			Log.e(TAG, "歌词与时间不对应:" + "\nwords:" + words.toString() + "\nDurations:" + durations.toString());
+		} else {
+			// Log.e(TAG, "处理正常行");
+			long tempLong = 0;
+			for (int i = 0; i < words.size(); i++) {
 
-		for (int i = 0; i < lineStartTime.size(); i++) {
-			if (i == lineStartTime.size() - 1 && timestamp >= lineStartTime.get(i)) {
-				lineTimestemp = timestamp - lineStartTime.get(i);
-				mLineNumber = i;
-				break;
-			} else if (timestamp >= lineStartTime.get(i) && timestamp <= lineStartTime.get(i + 1)) {
-				lineTimestemp = timestamp - lineStartTime.get(i);
-				mLineNumber = i;
-				break;
-			} else {
-			}
-			if (i == lineStartTime.size() - 1) {
-				Log.e(TAG, "未找到指定行.");
+				if (lineTimestemp - tempLong >= durations.get(i)) {
+					tempLong += durations.get(i);
+				} else {
+					// 已经经过了第i-1个字的宽度
+					float passedWidth = passedWidths.get(i);
+					// 第i个字的速度
+					float speed = speeds.get(i);
+					// Log.e(TAG, "speed:" + speed);
+					// 目前在第i个字上的宽度
+					float currentWidth = speed * (lineTimestemp - tempLong);
+					// 设定实际宽度
+					// Log.e(TAG, "实际宽度："+ passedWidth + currentWidth);
+					mLyricTextView.setMaskWidth(passedWidth + currentWidth);
+					break;
+				}
+
 			}
 		}
-		return lineTimestemp;
 	}
+
 }
