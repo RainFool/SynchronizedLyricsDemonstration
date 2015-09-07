@@ -48,7 +48,6 @@ public class LyricTextViewWapper {
 		this.mLyricTextView  = lyricTextView;
 	}
 
-
 	public void setTimestamp(long timestemp) {
 		//歌词在第几行的临时变量，主要用于查看是否改变了控件内的内容
 		int tempLineNumber = mLineNumber; 
@@ -93,7 +92,7 @@ public class LyricTextViewWapper {
 					float currentWidth = speed * (lineTimestemp - tempLong);
 					// 设定实际宽度
 //					Log.e(TAG, "实际宽度："+ passedWidth + currentWidth);
-					mLyricTextView.setMaskWidth(passedWidth + currentWidth);
+					mLyricTextView.setProgress((int) (passedWidth + currentWidth));
 					break;
 				}
 			}

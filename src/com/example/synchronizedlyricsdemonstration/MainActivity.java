@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -38,8 +39,7 @@ public class MainActivity extends Activity {
 				message.what = 0;
 				long front = System.currentTimeMillis();
 				wapper.setTimestamp(timestamp += 100);
-//				Log.e("Main", System.currentTimeMillis() - front + "");
-//				Log.i("Main", ">>>>" + (timestamp += 10));
+				Log.e("Main", System.currentTimeMillis() - front + "");
 				sendEmptyMessageDelayed(0, 100); 
 			}
 		}
@@ -73,7 +73,7 @@ public class MainActivity extends Activity {
 		DisplayMetrics dm = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(dm);
 		int screenWidth = dm.widthPixels;
-		mLyricsTextView.setLyricMaxWidth(screenWidth);
+		mLyricsTextView.setMaxLyricWidth(screenWidth);
 				 
 		
 		wapper = new LyricTextViewWapper(mLyricsTextView,lineStartTime, lines, resultDurations, resultWords);
@@ -87,14 +87,7 @@ public class MainActivity extends Activity {
 		
 		
 	}
-//
-//	private long getLineTime(ArrayList<Long> durations) {
-//		long result = 0;
-//		for (long i : durations) {
-//			result += i;
-//		}
-//		return result;
-//	}
+
 
 	/**
 	 * @Title: initData
@@ -119,13 +112,5 @@ public class MainActivity extends Activity {
 		lineStart = lf.getLineStart();
 		lineStartTime = lf.getLineStartTime();
 	}
-	
-//	private long getAllTime() {
-//		long result = 0;
-//		for(long i : lineStartTime) {
-//			result += i;
-//		}
-//		return result;
-//	}
-//	
+
 }
