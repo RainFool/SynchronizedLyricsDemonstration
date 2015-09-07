@@ -12,6 +12,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.widget.TextView;
 
@@ -39,31 +40,12 @@ public class LyricTextView extends TextView {
 
 	// 歌词正文
 	private String line;
-	// 歌词正文集合
-	private ArrayList<String> words;
-
-	// 歌词中每个字的持续时间
-	private ArrayList<Long> durations;
-	
-	//每个字每毫秒前进多少像素
-	private ArrayList<Float> speed = new ArrayList<>();
-
-	//控制歌词遮挡动态显示的线程
-	private Thread maskThread;
-	
-	//暂停tag,true为暂停，false为继续
-	private boolean pauseTag;
 	
 	//每一行的开始时间
 	private ArrayList<Long> lineStartTime;
-
-	private Handler handler = new Handler() {
-		public void handleMessage(android.os.Message msg) {
-			if (msg.what == 0) {
-				setMaskWidth(Float.parseFloat((String.valueOf(msg.obj))));
-			}
-		};
-	};
+	
+	//最大尺寸
+	private int lyricMaxWidth;
 
 	public LyricTextView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
@@ -93,9 +75,11 @@ public class LyricTextView extends TextView {
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 		String text = this.getText().toString();
 		float width = getPaint().measureText(text) + getPaddingLeft() + getPaddingRight();
-		
-			setMeasuredDimension((int) width, getMeasuredHeight() );
-			this.setWidth((int) width);
+		if(width > lyricMaxWidth) {
+			width = lyricMaxWidth;
+		}
+		setMeasuredDimension((int) width, getMeasuredHeight());
+		this.setWidth((int) width);
 	}
 
 	@Override
@@ -124,9 +108,9 @@ public class LyricTextView extends TextView {
 		if(maskWidth < this.getWidth()) {
 			createShader((int) maskWidth);
 			invalidate(); 
-			Log.e(TAG, "maskWidth:" + maskWidth + "|this.width:" + this.getWidth());
+//			Log.e(TAG, "maskWidth:" + maskWidth + "|this.width:" + this.getWidth());
 		}else {
-			createShader(this.getWidth());
+			createShader((int) maskWidth);
 			scrollTo((int) (maskWidth - this.getWidth()), 0); 
 			invalidate(); 
 		}
@@ -143,93 +127,13 @@ public class LyricTextView extends TextView {
 		this.lineStartTime = lineStartTime;
 	}
 
-	public void setDurations(ArrayList<Long> durations) {
-		this.durations = durations;
-	}
-	
-	public void pauseSwitch() {
-		if(pauseTag) {
-			pauseTag = false;
-		}else {
-			pauseTag = true;
-		}
+	public int getLyricMaxWidth() {
+		return lyricMaxWidth;
 	}
 
-	/** 
-	* @Title: setLineAndDuratios 
-	* @Description: 设置这个空间的基本数据
-	* @param @param line 歌词
-	* @param @param words 歌词的集合,对应durations中的每个时间
-	* @param @param durations 歌词中每个字的时间，对应words中的每个字符串
-	* @return void
-	* @throws InterruptedException
-	*/
-	public void setLineAndDurations(String line, ArrayList<String> words,ArrayList<Long> durations) {
-		this.line = line;
-		this.durations = durations;
-		this.words = words;
-
-		if (words.size() != durations.size()) {
-//			Log.e(TAG, "歌词集合与时间集合不符：" + "\n歌词集合：" + words.toString() + "\n时间集合：" + durations.toString());
-			return;
-		}else {
-			
-		}
-
-		// 同时设置这两个意味着需要结束当前线程
-		if (maskThread != null) {
-			maskThread.interrupt();
-			maskThread = null;
-			Log.e(TAG, "Thread ：上一个线程已经中断");
-		}
-
-		this.setText(line);
-		measureWords();
-//		initMaskThread();
-		if (maskThread != null) {
-			maskThread.start();
-		}
-
+	public void setLyricMaxWidth(int lyricMaxWidth) {
+		this.lyricMaxWidth = lyricMaxWidth;
 	}
-	
-
-//	private void initMaskThread() {
-//		maskThread = new Thread() {
-//			float t = 0;
-//			@Override
-//			public void run() {
-//				try {
-//					//处理每个词
-//					for (int i = 0; !isInterrupted() && i < words.size(); i++) {
-//						//每个词中根据算好的速度每10毫秒刷新
-//						for (int j = 0; j < durations.get(i)/10; j++) {
-//							//当前暂停
-//							if(pauseTag) {
-//								j--;
-//							}
-//							//当前处于播放状态
-//							else {
-//								
-//								t += speed.get(i) * 10;
-//							}
-//							Thread.sleep(10);
-//							Message msg = new Message();
-//							msg.what = 0;
-//							msg.obj = t;
-//							handler.sendMessage(msg);
-//						}
-//
-//					}
-//					// 循环结束中断线程
-//					join();
-//				} catch (InterruptedException e) {
-//					e.printStackTrace();
-//				}
-//			};
-//		};
-//	}
-
-
 
 	private void createShader(int width) {
 		canvas.drawColor(getCurrentTextColor());
@@ -237,14 +141,6 @@ public class LyricTextView extends TextView {
 		shadow.draw(canvas);
 		
 		getPaint().setShader(mBitmapShader);
-
-	}
-	
-	private void measureWords() {
-		for (int i = 0; i < words.size(); i++) {
-			float pix = getPaint().measureText(words.get(i));
-			speed.add(pix / durations.get(i));
-		}
 	}
 	
 
