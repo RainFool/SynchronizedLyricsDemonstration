@@ -1,99 +1,123 @@
-﻿<AbsoluteLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<AbsoluteLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.example.synchronizedlyricsdemonstration.MainActivity" >
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:id="@+id/music_lyricContent"
+        android:layout_width="1180dp"
         android:layout_height="wrap_content"
-        android:layout_x="0dp"
+        android:layout_x="50dp"
         android:layout_y="0dp"
-        android:background="#0f0"
-        android:gravity="right" >
+        android:gravity="right"
+        android:orientation="vertical" >
 
         <TextView
             android:id="@+id/music_textView_lyrics1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="marquee"
+            android:paddingTop="28dp"
             android:singleLine="true"
-            android:textSize="52dp"
-            android:textColor="#f0f0f0" />
+            android:textColor="#38f0f0f0"
+            android:textSize="32dp" />
 
         <TextView
             android:id="@+id/music_textView_lyrics2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="marquee"
+            android:paddingTop="28dp"
             android:singleLine="true"
-            android:textSize="52dp"
-            android:textColor="#f0f0f0" />
+            android:textColor="#38f0f0f0"
+            android:textSize="32dp" />
 
         <TextView
             android:id="@+id/music_textView_lyrics3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="marquee"
+            android:paddingTop="28dp"
             android:singleLine="true"
-            android:textSize="52dp"
-            android:textColor="#f0f0f0" />
+            android:textColor="#54f0f0f0"
+            android:textSize="32dp" />
 
         <TextView
             android:id="@+id/music_textView_lyrics4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="marquee"
+            android:paddingTop="28dp"
             android:singleLine="true"
-            android:textSize="52dp"
-            android:textColor="#f0f0f0" />
+            android:textColor="#70f0f0f0"
+            android:textSize="32dp" />
 
         <TextView
             android:id="@+id/music_textView_lyrics5"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="marquee"
+            android:paddingTop="28dp"
             android:singleLine="true"
-            android:textColor="#f0f0f0" />
+            android:textColor="#8cf0f0f0"
+            android:textSize="32dp" />
 
         <TextView
             android:id="@+id/music_textView_lyrics6"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="marquee"
+            android:paddingTop="28dp"
             android:singleLine="true"
-            android:textSize="52dp"
-            android:textColor="#f0f0f0" />
+            android:textColor="#a8f0f0f0"
+            android:textSize="32dp" />
 
         <TextView
             android:id="@+id/music_textView_lyrics7"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="marquee"
+            android:paddingTop="28dp"
             android:singleLine="true"
-            android:textSize="52dp"
-            android:textColor="#f0f0f0" />
+            android:textColor="#c4f0f0f0"
+            android:textSize="32dp" />
 
         <com.example.synchronizedlyricsdemonstration.LyricTextView
             android:id="@+id/music_lyricTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_x="100dp"
-            android:background="#f00"
             android:ellipsize="marquee"
+            android:maxWidth="1080dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
             android:singleLine="true"
+            android:text="######"
             android:textColor="#f9df00"
             android:textSize="80px" />
-        <TextView 
+
+        <TextView
             android:id="@+id/music_textView_nextLine"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="marquee"
+            android:paddingBottom="0dp"
             android:singleLine="true"
-            android:textSize="60dp"
             android:textColor="#f0f0f0"
-            />
+            android:textSize="52dp" />
     </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/music_progressbarWider"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_x="0dp"
+        android:layout_y="700dp"
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:max="100"
+        android:progress="50"
+        android:progressDrawable="@drawable/music_processbar" />
 
     <Button
         android:id="@+id/button_pause"

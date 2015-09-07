@@ -41,13 +41,12 @@ public class LyricTextViewWapper {
 			List<ArrayList<Long>> resultDurations, List<ArrayList<String>> resultWords) {
 		super();
 		this.context = context;
-		this.lineStartTime = lineStartTime;
+		this.lineStartTime = lineStartTime; 
 		this.lines = lines;
 		this.resultDurations = resultDurations;
 		this.resultWords = resultWords;
 		this.mLyricTextView  = lyricTextView;
 	}
-
 
 	public void setTimestamp(long timestemp) {
 		//歌词在第几行的临时变量，主要用于查看是否改变了控件内的内容
@@ -65,6 +64,10 @@ public class LyricTextViewWapper {
 
 		//处理当前行，并设置mask宽度
 		handleLine(lineTimestemp);
+	}
+
+	public int getLineNumber() {
+		return mLineNumber;
 	}
 
 	private void handleLine(long lineTimestemp) {
@@ -93,7 +96,7 @@ public class LyricTextViewWapper {
 					float currentWidth = speed * (lineTimestemp - tempLong);
 					// 设定实际宽度
 //					Log.e(TAG, "实际宽度："+ passedWidth + currentWidth);
-					mLyricTextView.setMaskWidth(passedWidth + currentWidth);
+					mLyricTextView.setProgress((int) (passedWidth + currentWidth));
 					break;
 				}
 			}
