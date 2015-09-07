@@ -6,11 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -71,6 +70,11 @@ public class MainActivity extends Activity {
 		});
 
 		initData();
+		DisplayMetrics dm = new DisplayMetrics();
+		getWindowManager().getDefaultDisplay().getMetrics(dm);
+		int screenWidth = dm.widthPixels;
+		mLyricsTextView.setLyricMaxWidth(screenWidth);
+				 
 		
 		wapper = new LyricTextViewWapper(mLyricsTextView,lineStartTime, lines, resultDurations, resultWords);
 

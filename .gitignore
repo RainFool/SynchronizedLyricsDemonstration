@@ -42,5 +42,6 @@ Network Trash Folder
 Temporary Items
 .apdisk
 *.bak
-gen/*
 bin/*
+gen/*
+*.setting

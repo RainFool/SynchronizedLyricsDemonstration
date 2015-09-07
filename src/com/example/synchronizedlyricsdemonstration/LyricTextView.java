@@ -15,14 +15,13 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.widget.TextView;
 
-/** 
-* @ClassName: LyricTextView 
-* @Description: KTV歌词播放效果
-* @author TianYu 田雨
-* @date 2015年9月2日 下午12:07:45 
-*  本类接收两个集合作为参数，使用setLineAndDurations方法设置数据
-*  播放过程中可以使用pauseSwitch进行暂停和播放的切换
-*/
+/**
+ * @ClassName: LyricTextView
+ * @Description: KTV歌词播放效果
+ * @author TianYu 田雨
+ * @date 2015年9月2日 下午12:07:45 本类接收两个集合作为参数，使用setLineAndDurations方法设置数据
+ *       播放过程中可以使用pauseSwitch进行暂停和播放的切换
+ */
 public class LyricTextView extends TextView {
 
 	private static final String TAG = "LyricTextView";
@@ -44,18 +43,21 @@ public class LyricTextView extends TextView {
 
 	// 歌词中每个字的持续时间
 	private ArrayList<Long> durations;
-	
-	//每个字每毫秒前进多少像素
+
+	// 每个字每毫秒前进多少像素
 	private ArrayList<Float> speed = new ArrayList<>();
 
-	//控制歌词遮挡动态显示的线程
+	// 控制歌词遮挡动态显示的线程
 	private Thread maskThread;
-	
-	//暂停tag,true为暂停，false为继续
+
+	// 暂停tag,true为暂停，false为继续
 	private boolean pauseTag;
-	
-	//每一行的开始时间
+
+	// 每一行的开始时间
 	private ArrayList<Long> lineStartTime;
+
+	// 每一行显示的最大宽度
+	private int LyricMaxWidth;
 
 	private Handler handler = new Handler() {
 		public void handleMessage(android.os.Message msg) {
@@ -93,52 +95,62 @@ public class LyricTextView extends TextView {
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 		String text = this.getText().toString();
 		float width = getPaint().measureText(text) + getPaddingLeft() + getPaddingRight();
+
+		if(width > LyricMaxWidth) {
+			width = LyricMaxWidth;
+		}
 		
-			setMeasuredDimension((int) width, getMeasuredHeight() );
-			this.setWidth((int) width);
+		setMeasuredDimension((int) width, getMeasuredHeight());
+		this.setWidth((int) width);
 	}
 
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
-//		 Log.e(TAG, "MaskWidth:"+ maskWidth + "|this.getWidth:" + this.getWidth());
+		// Log.e(TAG, "MaskWidth:"+ maskWidth + "|this.getWidth:" +
+		// this.getWidth());
 		Matrix shaderMatrix = new Matrix();
 		shaderMatrix.setTranslate(0, shadow.getIntrinsicHeight());
-		mBitmapShader.setLocalMatrix(shaderMatrix); 
+		mBitmapShader.setLocalMatrix(shaderMatrix);
 	}
- 
+
 	public float getMaskWidth() {
 		return maskWidth;
 	}
-	
-	/** 
-	* @Title: setMaskWidth 
-	* @Description: TODO根据宽度绘制遮挡效果
-	* @param @param maskWidth
-	* @return void
-	* @throws 
-	*/
+
+	/**
+	 * @Title: setMaskWidth @Description: TODO根据宽度绘制遮挡效果 @param @param
+	 * maskWidth @return void @throws
+	 */
 	public void setMaskWidth(float maskWidth) {
 		this.maskWidth = maskWidth;
-//		Log.e(TAG, "this width:"+ this.getWidth());
-		if(maskWidth < this.getWidth()) {
+		// Log.e(TAG, "this width:"+ this.getWidth());
+		if (maskWidth < this.getWidth()) {
 			createShader((int) maskWidth);
-			invalidate(); 
-			Log.e(TAG, "maskWidth:" + maskWidth + "|this.width:" + this.getWidth());
-		}else {
-			createShader(this.getWidth());
-			scrollTo((int) (maskWidth - this.getWidth()), 0); 
-			invalidate(); 
+			invalidate();
+			// Log.e(TAG, "maskWidth:" + maskWidth + "|this.width:" +
+			// this.getWidth());
+		} else {
+			createShader((int) maskWidth);
+			scrollTo((int) (maskWidth - this.getWidth()), 0);
+			invalidate();
 		}
-		
+
 	}
 
+	public int getLyricMaxWidth() {
+		return LyricMaxWidth;
+	}
+
+	public void setLyricMaxWidth(int lyricMaxWidth) {
+		LyricMaxWidth = lyricMaxWidth;
+	}
 
 	public void setLine(String line) {
 		this.line = line;
 		this.setText(line);
 	}
-	
+
 	public void setLineStartTime(ArrayList<Long> lineStartTime) {
 		this.lineStartTime = lineStartTime;
 	}
@@ -146,34 +158,38 @@ public class LyricTextView extends TextView {
 	public void setDurations(ArrayList<Long> durations) {
 		this.durations = durations;
 	}
-	
+
 	public void pauseSwitch() {
-		if(pauseTag) {
+		if (pauseTag) {
 			pauseTag = false;
-		}else {
+		} else {
 			pauseTag = true;
 		}
 	}
 
-	/** 
-	* @Title: setLineAndDuratios 
-	* @Description: 设置这个空间的基本数据
-	* @param @param line 歌词
-	* @param @param words 歌词的集合,对应durations中的每个时间
-	* @param @param durations 歌词中每个字的时间，对应words中的每个字符串
-	* @return void
-	* @throws InterruptedException
-	*/
-	public void setLineAndDurations(String line, ArrayList<String> words,ArrayList<Long> durations) {
+	/**
+	 * @Title: setLineAndDuratios
+	 * @Description: 设置这个空间的基本数据
+	 * @param @param
+	 *            line 歌词
+	 * @param @param
+	 *            words 歌词的集合,对应durations中的每个时间
+	 * @param @param
+	 *            durations 歌词中每个字的时间，对应words中的每个字符串
+	 * @return void
+	 * @throws InterruptedException
+	 */
+	public void setLineAndDurations(String line, ArrayList<String> words, ArrayList<Long> durations) {
 		this.line = line;
 		this.durations = durations;
 		this.words = words;
 
 		if (words.size() != durations.size()) {
-//			Log.e(TAG, "歌词集合与时间集合不符：" + "\n歌词集合：" + words.toString() + "\n时间集合：" + durations.toString());
+			// Log.e(TAG, "歌词集合与时间集合不符：" + "\n歌词集合：" + words.toString() +
+			// "\n时间集合：" + durations.toString());
 			return;
-		}else {
-			
+		} else {
+
 		}
 
 		// 同时设置这两个意味着需要结束当前线程
@@ -185,67 +201,63 @@ public class LyricTextView extends TextView {
 
 		this.setText(line);
 		measureWords();
-//		initMaskThread();
+		// initMaskThread();
 		if (maskThread != null) {
 			maskThread.start();
 		}
 
 	}
-	
 
-//	private void initMaskThread() {
-//		maskThread = new Thread() {
-//			float t = 0;
-//			@Override
-//			public void run() {
-//				try {
-//					//处理每个词
-//					for (int i = 0; !isInterrupted() && i < words.size(); i++) {
-//						//每个词中根据算好的速度每10毫秒刷新
-//						for (int j = 0; j < durations.get(i)/10; j++) {
-//							//当前暂停
-//							if(pauseTag) {
-//								j--;
-//							}
-//							//当前处于播放状态
-//							else {
-//								
-//								t += speed.get(i) * 10;
-//							}
-//							Thread.sleep(10);
-//							Message msg = new Message();
-//							msg.what = 0;
-//							msg.obj = t;
-//							handler.sendMessage(msg);
-//						}
-//
-//					}
-//					// 循环结束中断线程
-//					join();
-//				} catch (InterruptedException e) {
-//					e.printStackTrace();
-//				}
-//			};
-//		};
-//	}
-
-
+	// private void initMaskThread() {
+	// maskThread = new Thread() {
+	// float t = 0;
+	// @Override
+	// public void run() {
+	// try {
+	// //处理每个词
+	// for (int i = 0; !isInterrupted() && i < words.size(); i++) {
+	// //每个词中根据算好的速度每10毫秒刷新
+	// for (int j = 0; j < durations.get(i)/10; j++) {
+	// //当前暂停
+	// if(pauseTag) {
+	// j--;
+	// }
+	// //当前处于播放状态
+	// else {
+	//
+	// t += speed.get(i) * 10;
+	// }
+	// Thread.sleep(10);
+	// Message msg = new Message();
+	// msg.what = 0;
+	// msg.obj = t;
+	// handler.sendMessage(msg);
+	// }
+	//
+	// }
+	// // 循环结束中断线程
+	// join();
+	// } catch (InterruptedException e) {
+	// e.printStackTrace();
+	// }
+	// };
+	// };
+	// }
 
 	private void createShader(int width) {
 		canvas.drawColor(getCurrentTextColor());
 		shadow.setBounds(0, 0, width, 100);
 		shadow.draw(canvas);
-		
+
 		getPaint().setShader(mBitmapShader);
 
 	}
-	
+
 	private void measureWords() {
 		for (int i = 0; i < words.size(); i++) {
 			float pix = getPaint().measureText(words.get(i));
 			speed.add(pix / durations.get(i));
 		}
 	}
-	
 
 }
