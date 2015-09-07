@@ -10,7 +10,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -39,7 +38,7 @@ public class MainActivity extends Activity {
 	public TextView mTextView1, mTextView2, mTextView3, mTextView4, mTextView5, mTextView6, mTextView7,
 			mTextViewNextLine;
 	
-	long timestamp = 0;
+	long timestamp = 30000;
 
 	Handler handler = new Handler() {
 		public void handleMessage(Message msg) {
@@ -50,7 +49,7 @@ public class MainActivity extends Activity {
 				message.what = 0;
 				long front = System.currentTimeMillis();
 				wapper.setTimestamp(timestamp += 100);
-				Log.e("Main", System.currentTimeMillis() - front + "");
+//				Log.e("Main", System.currentTimeMillis() - front + "");
 //				Log.i("Main", ">>>>" + (timestamp += 10));
 				
 				//设置其他文字控件
@@ -92,8 +91,11 @@ public class MainActivity extends Activity {
 		});
 
 		initData();
+<<<<<<< HEAD
 		int screenWidth = getScreenWidth();
 		mLyricsTextView.setLyricMaxWidth(screenWidth);
+=======
+>>>>>>> parent of f8f68e0... 修复第一行不能播放的bug
 		
 		wapper = new LyricTextViewWapper(mLyricsTextView,lineStartTime, lines, resultDurations, resultWords);
 
