@@ -2,8 +2,6 @@
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -28,14 +26,8 @@ public class MainActivity extends Activity {
 	
 	private static final int REFRESH_DELAY = 100;
 
-	private List<ArrayList<String>> resultWords;
-	private ArrayList<ArrayList<Long>> resultDurations;
-	private List<String> lines;
-	private List<String> lineStart;
-	private List<Long> lineStartTime;
+	private LyricData lyricData = new LyricData();
 
-	private int musicState = MUSIC_PLAY;
-	
 	public LyricTextView mLyricsTextView;
 	public LinearLayout mLayoutLyricContent,mLayoutControlContent;
 	public TextView mTextView1, mTextView2, mTextView3, mTextView4, mTextView5, mTextView6, mTextView7,
@@ -44,6 +36,9 @@ public class MainActivity extends Activity {
 	public ImageView mImageViewPlayOrPause,mImageViewMode,mImageViewFavor,mImageViewSing,mImageViewAdd;
 	public ProgressBar mProgressBarWider,mProgressBarThinner;
 	
+	private LyricTextViewWapper wapper;
+	
+	private int musicState = MUSIC_PLAY;
 	int currentLineNumber = -1;
 
 	long timestamp = 40000;
@@ -67,7 +62,6 @@ public class MainActivity extends Activity {
 			}
 		}
 	};
-	private LyricTextViewWapper wapper;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -75,51 +69,18 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 		getWindow().setBackgroundDrawableResource(R.drawable.background);
 
-		mLayoutLyricContent = (LinearLayout) findViewById(R.id.music_lyricContent);
-		mLayoutControlContent = (LinearLayout) findViewById(R.id.music_controlContent);
-		
-		mTextView1 = (TextView) findViewById(R.id.music_textView_lyrics1);
-		mTextView2 = (TextView) findViewById(R.id.music_textView_lyrics2);
-		mTextView3 = (TextView) findViewById(R.id.music_textView_lyrics3);
-		mTextView4 = (TextView) findViewById(R.id.music_textView_lyrics4);
-		mTextView5 = (TextView) findViewById(R.id.music_textView_lyrics5);
-		mTextView6 = (TextView) findViewById(R.id.music_textView_lyrics6);
-		mTextView7 = (TextView) findViewById(R.id.music_textView_lyrics7);
-		mLyricsTextView = (LyricTextView) findViewById(R.id.music_lyricTextView);
-		mTextViewNextLine = (TextView) findViewById(R.id.music_textView_nextLine);
-		
-		mTextViewTimer = (TextView) findViewById(R.id.music_control_timer);
-		mImageViewPlayOrPause = (ImageView) findViewById(R.id.music_control_playOrPause);
-		mImageViewMode = (ImageView) findViewById(R.id.music_control_mode);
-		mImageViewFavor = (ImageView) findViewById(R.id.music_control_favor);
-		mImageViewSing = (ImageView) findViewById(R.id.music_control_sing);
-		mImageViewAdd = (ImageView) findViewById(R.id.music_control_add);
-		
-		mProgressBarWider = (ProgressBar) findViewById(R.id.music_progressbarWider);
-		mProgressBarThinner = (ProgressBar) findViewById(R.id.music_progressbarThinner);
-		
-		mImageViewPlayOrPause.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if(musicState == MUSIC_PLAY) {
-					musicState = MUSIC_PAUSE;
-					mImageViewPlayOrPause.setImageResource(R.drawable.music_control_pause);
-				}else {
-					musicState = MUSIC_PLAY;
-					mImageViewPlayOrPause.setImageResource(R.drawable.music_control_play);
-				}
-			}
-		});
+		init();
 		
 		initData();
 
 		mLyricsTextView.setMaxLyricWidth((int) getResources().getDimension(R.dimen.music_lyric_width));
 
-		wapper = new LyricTextViewWapper(mLyricsTextView, lineStartTime, lines, resultDurations, resultWords);
+		wapper = new LyricTextViewWapper(mLyricsTextView, lyricData.lineStartTime, lyricData.lines, lyricData.resultDurations, lyricData.resultWords);
 
 		handler.sendEmptyMessage(MUSIC_PLAY);
 
 	}
+
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		switch (keyCode) {
@@ -164,26 +125,64 @@ public class MainActivity extends Activity {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		LyricsFileAnalyse lf = new LyricsFileAnalyse(is);
+		LyricFileAnalyse lf = new LyricFileAnalyse(is);
 
-		resultWords = lf.getResultWords();
-		resultDurations = lf.getResultDurations();
-		lines = lf.getLines();
-		lineStart = lf.getLineStart();
-		lineStartTime = lf.getLineStartTime();
+		lyricData.resultWords = lf.getResultWords();
+		lyricData.resultDurations = lf.getResultDurations();
+		lyricData.lines = lf.getLines();
+		lyricData.lineStart = lf.getLineStart();
+		lyricData.lineStartTime = lf.getLineStartTime();
 	}
 
+	private void init() {
+		mLayoutLyricContent = (LinearLayout) findViewById(R.id.music_lyricContent);
+		mLayoutControlContent = (LinearLayout) findViewById(R.id.music_controlContent);
+		
+		mTextView1 = (TextView) findViewById(R.id.music_textView_lyrics1);
+		mTextView2 = (TextView) findViewById(R.id.music_textView_lyrics2);
+		mTextView3 = (TextView) findViewById(R.id.music_textView_lyrics3);
+		mTextView4 = (TextView) findViewById(R.id.music_textView_lyrics4);
+		mTextView5 = (TextView) findViewById(R.id.music_textView_lyrics5);
+		mTextView6 = (TextView) findViewById(R.id.music_textView_lyrics6);
+		mTextView7 = (TextView) findViewById(R.id.music_textView_lyrics7);
+		mLyricsTextView = (LyricTextView) findViewById(R.id.music_lyricTextView);
+		mTextViewNextLine = (TextView) findViewById(R.id.music_textView_nextLine);
+		
+		mTextViewTimer = (TextView) findViewById(R.id.music_control_timer);
+		mImageViewPlayOrPause = (ImageView) findViewById(R.id.music_control_playOrPause);
+		mImageViewMode = (ImageView) findViewById(R.id.music_control_mode);
+		mImageViewFavor = (ImageView) findViewById(R.id.music_control_favor);
+		mImageViewSing = (ImageView) findViewById(R.id.music_control_sing);
+		mImageViewAdd = (ImageView) findViewById(R.id.music_control_add);
+		
+		mProgressBarWider = (ProgressBar) findViewById(R.id.music_progressbarWider);
+		mProgressBarThinner = (ProgressBar) findViewById(R.id.music_progressbarThinner);
+		
+		mImageViewPlayOrPause.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if(musicState == MUSIC_PLAY) {
+					musicState = MUSIC_PAUSE;
+					mImageViewPlayOrPause.setImageResource(R.drawable.music_control_pause);
+				}else {
+					musicState = MUSIC_PLAY;
+					mImageViewPlayOrPause.setImageResource(R.drawable.music_control_play);
+				}
+			}
+		});
+	}
+	
 	private void updateTextViews() {
 		currentLineNumber = wapper.getLineNumber();
-		mTextView1.setText((currentLineNumber - 7 < 0) ? " " : lines.get(currentLineNumber - 7));
-		mTextView2.setText((currentLineNumber - 6 < 0) ? " " : lines.get(currentLineNumber - 6));
-		mTextView3.setText((currentLineNumber - 5 < 0) ? " " : lines.get(currentLineNumber - 5));
-		mTextView4.setText((currentLineNumber - 4 < 0) ? " " : lines.get(currentLineNumber - 4));
-		mTextView5.setText((currentLineNumber - 3 < 0) ? " " : lines.get(currentLineNumber - 3));
-		mTextView6.setText((currentLineNumber - 2 < 0) ? " " : lines.get(currentLineNumber - 2));
-		mTextView7.setText((currentLineNumber - 1 < 0) ? " " : lines.get(currentLineNumber - 1));
-		mTextViewNextLine.setText((currentLineNumber + 1 > lines.size() - 1) ? new String(" ")
-				: lines.get(currentLineNumber + 1));
+		mTextView1.setText((currentLineNumber - 7 < 0) ? " " : lyricData.lines.get(currentLineNumber - 7));
+		mTextView2.setText((currentLineNumber - 6 < 0) ? " " : lyricData.lines.get(currentLineNumber - 6));
+		mTextView3.setText((currentLineNumber - 5 < 0) ? " " : lyricData.lines.get(currentLineNumber - 5));
+		mTextView4.setText((currentLineNumber - 4 < 0) ? " " : lyricData.lines.get(currentLineNumber - 4));
+		mTextView5.setText((currentLineNumber - 3 < 0) ? " " : lyricData.lines.get(currentLineNumber - 3));
+		mTextView6.setText((currentLineNumber - 2 < 0) ? " " : lyricData.lines.get(currentLineNumber - 2));
+		mTextView7.setText((currentLineNumber - 1 < 0) ? " " : lyricData.lines.get(currentLineNumber - 1));
+		mTextViewNextLine.setText((currentLineNumber + 1 > lyricData.lines.size() - 1) ? new String(" ")
+				: lyricData.lines.get(currentLineNumber + 1));
 	}
 	
 	private void pause() {

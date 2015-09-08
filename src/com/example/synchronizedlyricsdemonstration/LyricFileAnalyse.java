@@ -21,7 +21,7 @@ import android.util.Log;
 * @date 2015年8月31日 下午6:08:47 
 *  在构造方法中传入File类，然后调用两个getResult...方法即可
 */
-public class LyricsFileAnalyse {
+public class LyricFileAnalyse {
 	
 	private static final String TAG = "LyricsFileAnalyse";
 
@@ -55,7 +55,7 @@ public class LyricsFileAnalyse {
 	*/ 
 	ArrayList<Long> lineStartTime;
 
-	public LyricsFileAnalyse(File lyricFile) {
+	public LyricFileAnalyse(File lyricFile) {
 		this.lyricFile = lyricFile;
 		BufferedReader br;
 		try {
@@ -67,7 +67,7 @@ public class LyricsFileAnalyse {
 		setLines();
 	}
 	
-	public LyricsFileAnalyse(InputStream is) {
+	public LyricFileAnalyse(InputStream is) {
 		this.lyricFile = lyricFile;
 		BufferedReader br;
 		try {
