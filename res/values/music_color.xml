@@ -2,4 +2,7 @@
 <resources>
     <color name="music_progress_background">#3f5601</color>
     <color name="music_progress">#b5e345</color>
+    
+    <color name="music_selected">#ffb400</color>
+    <color name="music_default">#5f7b12</color>
 </resources>

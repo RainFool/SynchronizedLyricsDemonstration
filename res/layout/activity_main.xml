@@ -90,8 +90,8 @@
             android:layout_x="100dp"
             android:ellipsize="marquee"
             android:maxWidth="1080dp"
-            android:paddingTop="10dp"
             android:paddingBottom="10dp"
+            android:paddingTop="10dp"
             android:singleLine="true"
             android:text="######"
             android:textColor="#f9df00"
@@ -111,18 +111,96 @@
     <ProgressBar
         android:id="@+id/music_progressbarWider"
         style="?android:attr/progressBarStyleHorizontal"
-        android:layout_x="0dp"
-        android:layout_y="700dp"
         android:layout_width="match_parent"
         android:layout_height="20dp"
+        android:layout_x="0dp"
+        android:layout_y="700dp"
         android:max="100"
         android:progress="50"
         android:progressDrawable="@drawable/music_processbar" />
 
-    <Button
-        android:id="@+id/button_pause"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="pause" />
+    <ProgressBar
+        android:id="@+id/music_progressbarThinner"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:layout_x="0dp"
+        android:layout_y="621dp"
+        android:max="100"
+        android:progress="50"
+        android:progressDrawable="@drawable/music_processbar"
+        android:visibility="invisible" />
+
+    <LinearLayout
+        android:id="@+id/music_controlContent"
+        android:layout_width="match_parent"
+        android:layout_height="85dp"
+        android:layout_x="0dp"
+        android:layout_y="625dp"
+        android:visibility="invisible" >
+
+        <TextView
+            android:id="@+id/music_control_timer"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:background="#f00"
+            android:focusable="true"
+            android:nextFocusLeft="@+id/music_control_add" />
+
+        <ImageView
+            android:id="@+id/music_control_playOrPause"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:scaleType="centerInside"
+            android:layout_weight="1.6"
+            android:background="@drawable/music_control_background"
+            android:focusable="true"
+            android:paddingBottom="10dp"
+            android:nextFocusLeft="@+id/music_control_add"
+            android:nextFocusRight="@+id/music_control_mode"
+            android:src="@drawable/music_control_play" />
+
+        <ImageView
+            android:id="@+id/music_control_mode"
+            android:layout_width="0dp"
+            android:scaleType="centerInside"
+            android:layout_height="match_parent"
+            android:layout_weight="1.6"
+            android:src="@drawable/music_control_mode_random"
+            android:background="@drawable/music_control_background"
+            android:focusable="true" />
+
+        <ImageView
+            android:id="@+id/music_control_favor"
+            android:layout_width="0dp"
+            android:scaleType="centerInside"
+            android:layout_height="match_parent"
+            android:layout_weight="1.6"
+            android:src="@drawable/music_control_favor"
+            android:background="@drawable/music_control_background"
+            android:focusable="true" />
+
+        <ImageView
+            android:id="@+id/music_control_sing"
+            android:layout_width="0dp"
+            android:scaleType="centerInside"
+            android:layout_height="match_parent"
+            android:layout_weight="1.6"
+            android:src="@drawable/music_control_sing"
+            android:background="@drawable/music_control_background"
+            android:focusable="true" />
+
+        <ImageView
+            android:id="@+id/music_control_add"
+            android:layout_width="0dp"
+            android:scaleType="centerInside"
+            android:layout_height="match_parent"
+            android:layout_weight="1.6"
+            android:src="@drawable/music_control_add"
+            android:background="@drawable/music_control_background"
+            android:focusable="true"
+            android:nextFocusRight="@+id/music_control_pause" />
+    </LinearLayout>
 
 </AbsoluteLayout>

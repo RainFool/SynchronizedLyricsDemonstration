@@ -10,13 +10,23 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
+	
+	private static final String TAG = "MainActivity";
+	
+	private static final int MUSIC_PLAY = 0;
+	private static final int MUSIC_PAUSE = 1;
+	
+	private static final int REFRESH_DELAY = 100;
 
 	private List<ArrayList<String>> resultWords;
 	private ArrayList<ArrayList<Long>> resultDurations;
@@ -24,25 +34,36 @@ public class MainActivity extends Activity {
 	private List<String> lineStart;
 	private List<Long> lineStartTime;
 
-	private LyricTextView mLyricsTextView;
-	private Button mButtonPause;
-
+	private int musicState = MUSIC_PLAY;
+	
+	public LyricTextView mLyricsTextView;
+	public LinearLayout mLayoutLyricContent,mLayoutControlContent;
 	public TextView mTextView1, mTextView2, mTextView3, mTextView4, mTextView5, mTextView6, mTextView7,
 			mTextViewNextLine;
-
+	public TextView mTextViewTimer;
+	public ImageView mImageViewPlayOrPause,mImageViewMode,mImageViewFavor,mImageViewSing,mImageViewAdd;
+	public ProgressBar mProgressBarWider,mProgressBarThinner;
+	
 	int currentLineNumber = -1;
 
 	long timestamp = 40000;
 	Handler handler = new Handler() {
 		public void handleMessage(Message msg) {
-			if (msg.what == 0) {
+			switch (msg.what) {
+			case MUSIC_PLAY:
 				Message message = new Message();
-				message.what = 0;
-				wapper.setTimestamp(timestamp += 100);
+				message.what = MUSIC_PLAY;
+				wapper.setTimestamp(timestamp += REFRESH_DELAY);
 				if (currentLineNumber != wapper.getLineNumber()) {
 					updateTextViews();
 				}
-				sendEmptyMessageDelayed(0, 100);
+				sendEmptyMessageDelayed(0, REFRESH_DELAY);
+				break;
+			case MUSIC_PAUSE:
+				removeMessages(MUSIC_PLAY);
+				break;
+			default:
+				break;
 			}
 		}
 	};
@@ -54,6 +75,9 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 		getWindow().setBackgroundDrawableResource(R.drawable.background);
 
+		mLayoutLyricContent = (LinearLayout) findViewById(R.id.music_lyricContent);
+		mLayoutControlContent = (LinearLayout) findViewById(R.id.music_controlContent);
+		
 		mTextView1 = (TextView) findViewById(R.id.music_textView_lyrics1);
 		mTextView2 = (TextView) findViewById(R.id.music_textView_lyrics2);
 		mTextView3 = (TextView) findViewById(R.id.music_textView_lyrics3);
@@ -63,26 +87,69 @@ public class MainActivity extends Activity {
 		mTextView7 = (TextView) findViewById(R.id.music_textView_lyrics7);
 		mLyricsTextView = (LyricTextView) findViewById(R.id.music_lyricTextView);
 		mTextViewNextLine = (TextView) findViewById(R.id.music_textView_nextLine);
-
-		mButtonPause = (Button) findViewById(R.id.button_pause);
-		mButtonPause.setOnClickListener(new OnClickListener() {
-
+		
+		mTextViewTimer = (TextView) findViewById(R.id.music_control_timer);
+		mImageViewPlayOrPause = (ImageView) findViewById(R.id.music_control_playOrPause);
+		mImageViewMode = (ImageView) findViewById(R.id.music_control_mode);
+		mImageViewFavor = (ImageView) findViewById(R.id.music_control_favor);
+		mImageViewSing = (ImageView) findViewById(R.id.music_control_sing);
+		mImageViewAdd = (ImageView) findViewById(R.id.music_control_add);
+		
+		mProgressBarWider = (ProgressBar) findViewById(R.id.music_progressbarWider);
+		mProgressBarThinner = (ProgressBar) findViewById(R.id.music_progressbarThinner);
+		
+		mImageViewPlayOrPause.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				if(musicState == MUSIC_PLAY) {
+					musicState = MUSIC_PAUSE;
+					mImageViewPlayOrPause.setImageResource(R.drawable.music_control_pause);
+				}else {
+					musicState = MUSIC_PLAY;
+					mImageViewPlayOrPause.setImageResource(R.drawable.music_control_play);
+				}
 			}
 		});
-
+		
 		initData();
 
-		mLyricsTextView.setMaxLyricWidth(1180);
+		mLyricsTextView.setMaxLyricWidth((int) getResources().getDimension(R.dimen.music_lyric_width));
 
 		wapper = new LyricTextViewWapper(mLyricsTextView, lineStartTime, lines, resultDurations, resultWords);
 
-		Message message = new Message();
-		message.what = 0;
-		message.obj = 0;
-		handler.sendMessage(message);
+		handler.sendEmptyMessage(MUSIC_PLAY);
 
+	}
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		switch (keyCode) {
+		case KeyEvent.KEYCODE_DPAD_CENTER:
+			if(mLayoutControlContent.getVisibility() == View.INVISIBLE) {
+				mLayoutControlContent.setVisibility(View.VISIBLE);
+				mProgressBarWider.setVisibility(View.INVISIBLE);
+				mProgressBarThinner.setVisibility(View.VISIBLE);
+				mLayoutLyricContent.setY(mLayoutLyricContent.getY() - mProgressBarThinner.getHeight() - mLayoutControlContent.getHeight());
+				mImageViewPlayOrPause.requestFocus();
+			} else {
+				Log.e(TAG, "enter");
+			}
+			break;
+		case KeyEvent.KEYCODE_DPAD_LEFT:
+			//TODO
+			break;
+		case KeyEvent.KEYCODE_BACK:
+			if(mLayoutControlContent.getVisibility() == View.VISIBLE) {
+				mLayoutControlContent.setVisibility(View.INVISIBLE);
+				mProgressBarThinner.setVisibility(View.INVISIBLE);
+				mProgressBarWider.setVisibility(View.VISIBLE);
+				mLayoutLyricContent.setY(mLayoutLyricContent.getY() + mProgressBarThinner.getHeight() + mLayoutControlContent.getHeight());
+				return true;
+			}
+			break;
+		default:
+			break;
+		}
+		return super.onKeyDown(keyCode, event);
 	}
 	
 	/**
@@ -118,5 +185,15 @@ public class MainActivity extends Activity {
 		mTextViewNextLine.setText((currentLineNumber + 1 > lines.size() - 1) ? new String(" ")
 				: lines.get(currentLineNumber + 1));
 	}
+	
+	private void pause() {
+		Log.e(TAG, "music paused");
+		handler.sendEmptyMessage(MUSIC_PAUSE);
+	}
+	private void resume() {
+		Log.e(TAG, "Music resumed");
+		timestamp = 0;
+	}
+	
 
 }
