@@ -22,14 +22,7 @@ public class LyricTextViewWapper {
 	//每个字上，maskWidth应该具有的增长速度
 	ArrayList<Float> speeds;
 
-	// 每一行起始时间的集合
-	List<Long> lineStartTime;
-	// 歌词集合
-	List<String> lines;
-	// 每一行每一个字的持续时间的集合
-	List<ArrayList<Long>> resultDurations;
-	// 每一行每一个字集合的集合
-	List<ArrayList<String>> resultWords;
+	LyricData data = new LyricData();
 
 	// 每一行每一个字的持续时间
 	ArrayList<Long> durations;
@@ -37,22 +30,28 @@ public class LyricTextViewWapper {
 	ArrayList<String> words;
 
 	Context context;
-	public LyricTextViewWapper(LyricTextView lyricTextView, List<Long> lineStartTime, List<String> lines,
-			List<ArrayList<Long>> resultDurations, List<ArrayList<String>> resultWords) {
+	
+	public LyricTextViewWapper(LyricTextView lyricTextView, LyricData lyricData) {
+		this.mLyricTextView = lyricTextView;
+		this.data = lyricData;
+	}
+	
+	@Deprecated
+	public LyricTextViewWapper(LyricTextView lyricTextView, ArrayList<Long> lineStartTime, ArrayList<String> lines,
+			ArrayList<ArrayList<Long>> resultDurations, ArrayList<ArrayList<String>> resultWords) {
 		super();
-		this.context = context;
-		this.lineStartTime = lineStartTime; 
-		this.lines = lines;
-		this.resultDurations = resultDurations;
-		this.resultWords = resultWords;
+		this.data.lineStartTime = lineStartTime; 
+		this.data.lines = lines;
+		this.data.resultDurations = resultDurations;
+		this.data.resultWords = resultWords;
 		this.mLyricTextView  = lyricTextView;
 	}
 
-	public void setTimestamp(long timestemp) {
+	public void setTimestamp(long timestamp) {
 		//歌词在第几行的临时变量，主要用于查看是否改变了控件内的内容
 		int tempLineNumber = mLineNumber; 
 		
-		long lineTimestemp = checkToWhichLine(timestemp);
+		long lineTimestemp = checkToWhichLine(timestamp);
 
 
 		// 如果行号变化了，则应该重新设定文本和时间值，并且进行耗时的measure操作，存储在集合中
@@ -109,9 +108,9 @@ public class LyricTextViewWapper {
 		// Log.e(TAG, "linenumber:" + tempLineNumber + "|mLinNumber:" +
 		// mLineNumber);
 		tempLineNumber = mLineNumber;
-		mLyricTextView.setLine(lines.get(mLineNumber));
-		this.words = resultWords.get(mLineNumber);
-		this.durations = resultDurations.get(mLineNumber);
+		mLyricTextView.setLine(data.lines.get(mLineNumber));
+		this.words = data.resultWords.get(mLineNumber);
+		this.durations = data.resultDurations.get(mLineNumber);
 		// 测量经过的文字宽度,并放入集合
 		passedWidths = new ArrayList<>();
 		speeds = new ArrayList<>();
@@ -139,21 +138,21 @@ public class LyricTextViewWapper {
 	private long checkToWhichLine(long timestamp) {
 		// 当前行时间进行到何时
 		long lineTimestemp = 0;
-		if (lineStartTime.size() != lines.size()) {
+		if (data.lineStartTime.size() != data.lines.size()) {
 			return -1;
 		}
-		for (int i = 0; i < lineStartTime.size(); i++) {
-			if (i == lineStartTime.size() - 1 && timestamp >= lineStartTime.get(i)) {
-				lineTimestemp = timestamp - lineStartTime.get(i);
+		for (int i = 0; i < data.lineStartTime.size(); i++) {
+			if (i == data.lineStartTime.size() - 1 && timestamp >= data.lineStartTime.get(i)) {
+				lineTimestemp = timestamp - data.lineStartTime.get(i);
 				mLineNumber = i;
 				break;
-			} else if (timestamp >= lineStartTime.get(i) && timestamp <= lineStartTime.get(i + 1)) {
-				lineTimestemp = timestamp - lineStartTime.get(i);
+			} else if (timestamp >= data.lineStartTime.get(i) && timestamp <= data.lineStartTime.get(i + 1)) {
+				lineTimestemp = timestamp - data.lineStartTime.get(i);
 				mLineNumber = i;
 				break;
 			} else {
 			}
-			if (i == lineStartTime.size() - 1) {
+			if (i == data.lineStartTime.size() - 1) {
 				Log.e(TAG, "未找到指定行.");
 			}
 		}

@@ -24,7 +24,7 @@
             android:textSize="32dp" />
 
         <TextView
-            android:id="@+id/music_textView_lyrics2"
+            android:id="@+id/music_textView_lyrics2" 
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="marquee"
@@ -109,7 +109,7 @@
     </LinearLayout>
 
     <ProgressBar
-        android:id="@+id/music_progressbarWider"
+        android:id="@+id/music_progressbar"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
         android:layout_height="20dp"
@@ -118,7 +118,6 @@
         android:max="100"
         android:progress="50"
         android:progressDrawable="@drawable/music_processbar" />
-
     <ProgressBar
         android:id="@+id/music_progressbarThinner"
         style="?android:attr/progressBarStyleHorizontal"
@@ -144,7 +143,9 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="2"
-            android:background="#f00"
+            android:textSize="20dp"
+            android:gravity="center"
+            android:background="@drawable/music_control_background"
             android:focusable="true"
             android:nextFocusLeft="@+id/music_control_add" />
 
@@ -159,7 +160,7 @@
             android:paddingBottom="10dp"
             android:nextFocusLeft="@+id/music_control_add"
             android:nextFocusRight="@+id/music_control_mode"
-            android:src="@drawable/music_control_play" />
+            android:src="@drawable/music_control_pause" />
 
         <ImageView
             android:id="@+id/music_control_mode"
@@ -167,7 +168,7 @@
             android:scaleType="centerInside"
             android:layout_height="match_parent"
             android:layout_weight="1.6"
-            android:src="@drawable/music_control_mode_random"
+            android:src="@drawable/music_control_mode_loop"
             android:background="@drawable/music_control_background"
             android:focusable="true" />
 
