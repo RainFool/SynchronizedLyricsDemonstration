@@ -187,6 +187,7 @@ public class MainActivity extends Activity {
 		InputStream is = null;
 		try {
 			is = getAssets().open("1.lyc");
+//			is = getAssets().open("2.lrc");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

@@ -30,30 +30,7 @@ public class LyricFileAnalyse {
 	 */
 	File lyricFile;
 
-	/**
-	 * @Fields resultDurations :保存所有的行的时间信息,嵌套的集合存放了对应歌词正文每个字的持续时间
-	 */
-	ArrayList<ArrayList<Long>> resultDurations;
-
-	/**
-	 * @Fields resultWords :保存所有的歌词正文信息，即用户看见的文字
-	 */
-	ArrayList<ArrayList<String>> resultWords;
-	
-	/** 
-	* @Fields lines :保存所有歌词正文信息，与resultWords不同的是，这个变量存储了每一行歌词作为一个String
-	*/ 
-	ArrayList<String> lines;
-
-	/**
-	 * @Fields lineStart:每一行的开始时间，即每一行出现的第一个时间的字符串表达形式
-	 */
-	ArrayList<String> lineStart = new ArrayList<>();
-	
-	/** 
-	* @Fields lineStartTime :每一行歌词开始时间
-	*/ 
-	ArrayList<Long> lineStartTime;
+	LyricData lyricData = new LyricData();
 
 	public LyricFileAnalyse(File lyricFile) {
 		this.lyricFile = lyricFile;
@@ -68,7 +45,6 @@ public class LyricFileAnalyse {
 	}
 	
 	public LyricFileAnalyse(InputStream is) {
-		this.lyricFile = lyricFile;
 		BufferedReader br;
 		try {
 			br = new BufferedReader(new InputStreamReader(is,"UTF-8"));
@@ -80,28 +56,28 @@ public class LyricFileAnalyse {
 	}
 
 	public ArrayList<ArrayList<Long>> getResultDurations() {
-		return resultDurations;
+		return lyricData.resultDurations;
 	}
 
 	public ArrayList<ArrayList<String>> getResultWords() {
-		return resultWords;
+		return lyricData.resultWords;
 	}
 
 	public ArrayList<String> getLineStart() {
-		return lineStart;
+		return lyricData.lineStart;
 	}
 
 	public ArrayList<String> getLines() {
-		return lines;
+		return lyricData.lines;
 	}
 
 	public ArrayList<Long> getLineStartTime() {
 		ArrayList<String> start = getLineStart();
-		lineStartTime = new ArrayList<>();
+		lyricData.lineStartTime = new ArrayList<>();
 		for(String i : start) {
-			lineStartTime.add(timeParse(i));
+			lyricData.lineStartTime.add(timeParse(i));
 		}
-		return lineStartTime;
+		return lyricData.lineStartTime; 
 	}
 
 
@@ -114,8 +90,8 @@ public class LyricFileAnalyse {
 	*/
 	public void lyricFileAnalyse(BufferedReader br) {
 		try {
-			resultDurations = new ArrayList<>();
-			resultWords = new ArrayList<>();
+			lyricData.resultDurations = new ArrayList<>();
+			lyricData.resultWords = new ArrayList<>();
 			
 			// 从文件中取出的原始的一行数据
 			String rawLine = null;
@@ -126,10 +102,16 @@ public class LyricFileAnalyse {
 				ArrayList<Long> lineDurations = new ArrayList<>();
 				// 每一行处理后存放正文的集合
 				ArrayList<String> lineWords = new ArrayList<>();
-				lineHandle(rawLine, lineDurations, lineWords);
 				
-				resultDurations.add(lineDurations);
-				resultWords.add(lineWords);
+				if(rawLine.contains("<") && rawLine.contains(">")) {
+					lineHandleLRC(rawLine, lineDurations, lineWords);
+				}else {
+					
+					lineHandleLYC(rawLine, lineDurations, lineWords);
+				}
+				
+				lyricData.resultDurations.add(lineDurations);
+				lyricData.resultWords.add(lineWords);
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -138,19 +120,20 @@ public class LyricFileAnalyse {
 		}
 	}
 
-	private void lineHandle(String rawLine, ArrayList<Long> lineDurations, ArrayList<String> lineWords) {
+	//LYC歌词文件处理
+	private void lineHandleLYC(String rawLine, ArrayList<Long> lineDurations, ArrayList<String> lineWords) {
 
 		String[] data = rawLine.split("\\|");
 
 		// 如果没有“|”符号,且有数据，就将时间设为起始时间，并将字符串内的"["去掉返回
 		if (data.length == 1) {
-			lineStart.add("[00:00:00]");
+			lyricData.lineStart.add("[00:00:00]");
 			lineWords.add(rawLine.replace("[", "").replace("]", ""));
 			return;
 		}
 
 		// 以下是正常行的处理，先加入每一行的起始时间,并将时间的“[”和“]”去掉
-		lineStart.add(data[0].replace("[", "").replace("]", ""));
+		lyricData.lineStart.add(data[0].replace("[", "").replace("]", ""));
 
 		// 循环处理正常数据，一行被分割后，数组中偶数为时间，先存放到临时集合里,奇数为正文存放在lineWords中
 		ArrayList<String> times = new ArrayList<>();
@@ -173,6 +156,38 @@ public class LyricFileAnalyse {
 		}
 	}
 
+	//LRC歌词文件处理
+		private void lineHandleLRC(String rawLine,  ArrayList<Long> lineDurations, ArrayList<String> lineWords) {
+			char[] data = rawLine.toCharArray();
+			String lineStart = null;
+			for(int i = 0;i < data.length; i ++) {
+				if("[".equals(data[i] + "")) {
+					for(int j = i + 1;j < data.length; j ++) {
+						if("]".equals(data[j] + "")) {
+							lineStart = rawLine.substring(i, j+1);
+							lyricData.lineStart.add(lineStart);
+							String temp = lineStart.replace("[", "").replace("]", "");
+							lyricData.lineStartTime.add(Long.parseLong(temp.split(",")[0]));
+							i = j;
+							break;
+						}
+					}
+				}else if("<".equals(data[i] + "")) {
+					for(int j = i + 1;j < data.length;j ++) {
+						if(">".equals(data[j] + "")) {
+							String temp = rawLine.substring(i,j + 1);
+							lineDurations.add(Long.parseLong(temp.split(",")[1]));
+							i = j;
+							break;
+						}
+					}
+				} else {
+					lineWords.add(data[i] + "");
+				}
+				
+			}
+		}
+	
 	// 将时间字符串转换为long型数值
 	private long timeParse(String time) {
 
@@ -188,13 +203,13 @@ public class LyricFileAnalyse {
 	
 	//初始化lines
 	private void setLines() {
-		lines = new ArrayList<>();
-		for(int i = 0;i < resultWords.size();i ++) {
+		lyricData.lines = new ArrayList<>();
+		for(int i = 0;i < lyricData.resultWords.size();i ++) {
 			StringBuffer sb = new StringBuffer();
-			for(int j = 0; j < resultWords.get(i).size(); j ++) {
-				sb.append(resultWords.get(i).get(j));
+			for(int j = 0; j < lyricData.resultWords.get(i).size(); j ++) {
+				sb.append(lyricData.resultWords.get(i).get(j));
 			}
-			lines.add(sb.toString());
+			lyricData.lines.add(sb.toString());
 		}
 	}
 }

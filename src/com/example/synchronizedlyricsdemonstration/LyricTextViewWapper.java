@@ -112,14 +112,14 @@ public class LyricTextViewWapper {
 		this.words = data.resultWords.get(mLineNumber);
 		this.durations = data.resultDurations.get(mLineNumber);
 		// 测量经过的文字宽度,并放入集合
-		passedWidths = new ArrayList<>();
+		passedWidths = new ArrayList<>(); 
 		speeds = new ArrayList<>();
 		StringBuffer tempStringBuffer = new StringBuffer();
 		for (int i = 0; i < words.size(); i++) {
 
 			
 			float speed= -1;
-			if (!durations.isEmpty()) {
+			if (!durations.isEmpty() && !words.isEmpty()) {
 				speed = mLyricTextView.getPaint().measureText(words.get(i)) / durations.get(i);
 			} else {
 				speed = 10;
