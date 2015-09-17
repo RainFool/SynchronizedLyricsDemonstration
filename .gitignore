@@ -45,3 +45,4 @@ Temporary Items
 bin/*
 gen/*
 *.setting
+.settings/*
