@@ -1,7 +1,6 @@
 package com.rainfool.lyric;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class Lyric implements ILyric {
 	
@@ -17,8 +16,6 @@ public class Lyric implements ILyric {
 	public String ar;
 	//此文件的创作者
 	public String by;
-	//创建此文件的播放器或者编辑器
-	public String re;
 	//歌词标题
 	public String ti;
 	//程序的版本
@@ -33,10 +30,12 @@ public class Lyric implements ILyric {
 	private int currentRow;
 	private int currentColumn;
 	
-	public Lyric(ArrayList<ArrayList<Long>> timestamps,ArrayList<ArrayList<String>> words) {
-		this.timestamps = timestamps;
-		this.words = words;
+	public Lyric() {
 	}
+//	public Lyric(ArrayList<ArrayList<Long>> timestamps,ArrayList<ArrayList<String>> words) {
+//		this.timestamps = timestamps;
+//		this.words = words;
+//	}
 	
 	@Override
 	public String getWord(long timestamp) {

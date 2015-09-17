@@ -6,6 +6,13 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 
+/** 
+* @ClassName: AbstractLyricFactory 
+* @Description: 三个工厂类的父类，处理一些公共操作
+* @author TianYu 田雨
+* @date 2015年9月17日 下午7:35:02 
+*  
+*/
 public abstract class AbstractLyricFactory {
 
 	String url;
