@@ -13,8 +13,10 @@ import java.net.URL;
 * @date 2015年9月17日 下午7:35:02 
 *  
 */
-public abstract class AbstractLyricFactory {
+public abstract class LyricFactory {
 
+	protected static final String TAG = "LyricFactory";
+	
 	String url;
 	HttpURLConnection conn;
 	

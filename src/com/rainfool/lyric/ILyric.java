@@ -18,18 +18,18 @@ public interface ILyric {
 	public long getDuration(long timestamp);
 	
 	/*
-	 * 
+	 * Get current line
 	 */
-	public String getLine(long startTimestamp);
+	public String getLine(long timestamp);
 	
 	/*
 	 * return passed words in current,doesn't count current word
 	 */
-	public String getPassWords(long timestamp);
+	public String getPassedWords(long timestamp);
 	
 	/*
 	 * return passed duration in current line,doesn't count passed time of current word
 	 */
-	public long getPassDuration(long timestamp);
+	public long getPassedDuration(long timestamp);
 	
 }

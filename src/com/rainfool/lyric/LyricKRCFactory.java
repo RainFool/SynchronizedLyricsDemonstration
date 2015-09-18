@@ -1,6 +1,6 @@
 package com.rainfool.lyric;
 
-public class LyricKRCFactory extends AbstractLyricFactory {
+public class LyricKRCFactory extends LyricFactory {
 
 	
 	@Override
